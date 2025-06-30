@@ -1,30 +1,22 @@
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import RoutesComponent from './Routes';
+import React, { useState } from 'react';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+
   return (
-    <div className="container mt-5">
+    <div>
       <h1>Controle de Papel HMAA</h1>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="collapse navbar-collapse">
-          <ul className="navbar-nav mr-auto">
-            <li className="nav-item active">
-              <a className="nav-link" href="/">Dashboard</a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/cadastro">Cadastrar</a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/listagem">Listagem</a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/relatorios">Relatórios</a>
-            </li>
-          </ul>
-        </div>
+      <nav>
+        <button onClick={() => setActiveTab('dashboard')}>Dashboard</button>
+        <button onClick={() => setActiveTab('cadastrar')}>Cadastrar</button>
+        <button onClick={() => setActiveTab('listagem')}>Listagem</button>
+        <button onClick={() => setActiveTab('relatorios')}>Relatórios</button>
       </nav>
-      <RoutesComponent />
+
+      {activeTab === 'dashboard' && <p>Bem-vindo ao Dashboard</p>}
+      {activeTab === 'cadastrar' && <p>Formulário de cadastro</p>}
+      {activeTab === 'listagem' && <p>Listagem de lançamentos</p>}
+      {activeTab === 'relatorios' && <p>Relatórios disponíveis</p>}
     </div>
   );
 }
