@@ -1,13 +1,18 @@
 # Etapa 1: Constrói a aplicação
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 
+# Aumenta memória para builds grandes
 ENV NODE_OPTIONS=--max-old-space-size=4096
-
 WORKDIR /usr/src/app
 
+# Copia package.json e install
 COPY package*.json ./
-RUN npm install --verbose # Adicione --verbose para mais detalhes no log
-RUN ls -la node_modules/.bin/ # Verifique se os executáveis estão lá
+RUN npm install --verbose
+
+# Copia os arquivos do app
+COPY . .
+
+# Rode o build apenas se o script estiver presente
 RUN npm run build
 
 # Etapa 2: Usa Nginx pra servir a build
