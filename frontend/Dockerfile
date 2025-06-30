@@ -1,6 +1,5 @@
 # Etapa 1: Constrói a aplicação
 FROM node:18-alpine as builder
-RUN apk add --no-cache npm
 
 WORKDIR /usr/src/app
 
