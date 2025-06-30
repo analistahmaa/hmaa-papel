@@ -4,8 +4,8 @@ FROM node:18-alpine as builder
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm install
-COPY . .
+RUN npm install --verbose # Adicione --verbose para mais detalhes no log
+RUN ls -la node_modules/.bin/ # Verifique se os executáveis estão lá
 RUN npm run build
 
 # Etapa 2: Usa Nginx pra servir a build
