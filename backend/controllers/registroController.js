@@ -1,4 +1,4 @@
-const db = require("../db");
+const db = require("../db/connection");
 
 exports.listarRegistros = async (req, res) => {
   let query = "SELECT r.*, s.nome AS setor_nome FROM registros r JOIN setores s ON r.setor_id = s.id WHERE 1=1";
