@@ -9,6 +9,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --verbose
 
+RUN chmod +x node_modules/.bin/*
+
 # Copia os arquivos do app
 COPY . .
 
