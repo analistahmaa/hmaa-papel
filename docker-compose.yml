@@ -26,7 +26,7 @@ services:
       DB_USER: root
       DB_PASSWORD: HMaa.25
       DB_NAME: hmaa_controle_papel
-    command: tail -f /dev/null
+    
   db:
     image: mysql:8.0
     container_name: hmaa-db
