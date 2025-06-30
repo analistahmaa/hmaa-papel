@@ -41,5 +41,4 @@ services:
 
 volumes:
   mysql:
-    driver_opts:
-      type: none
+    name: hmaa-papel_mysql
