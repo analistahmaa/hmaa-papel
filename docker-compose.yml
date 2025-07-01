@@ -13,8 +13,12 @@ services:
   backend:
     build: ./backend
     container_name: hmaa-papel-backend
-    ports:
-      - "5000:5000" # Exponha a porta para o Nginx poder se conectar
+    # A política de restart não é mais tão crítica, mas é bom manter
+    restart: unless-stopped
+    # ==========================================================
+    #           USANDO O SCRIPT PARA ESPERAR PELO DB
+    # ==========================================================
+    command: ["./wait-for-it.sh", "db", "--", "node", "index.js"]
     depends_on:
       - db
     environment:
