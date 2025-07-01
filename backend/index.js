@@ -1,27 +1,20 @@
-require("dotenv").config();
+// backend/index.js (Exemplo de como ficaria)
 const express = require("express");
 const cors = require("cors");
-const helmet = require("helmet");
-const morgan = require("morgan");
 
-// Import routes
-const authRoutes = require("./routes/auth");
-const registroRoutes = require("./routes/registros");
-const relatorioRoutes = require("./routes/relatorios");
+// Importe suas rotas
+const relatorioRoutes = require("./routes/relatorios.js");
+const registroRoutes = require("./routes/registros.js"); // <-- Adicione esta linha
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json()); // <-- MUITO IMPORTANTE: para o backend entender o corpo das requisições POST
 app.use(cors());
-app.use(helmet());
-app.use(morgan("dev"));
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/registros", registroRoutes);
+// Defina os prefixos das suas rotas
 app.use("/api/relatorios", relatorioRoutes);
+app.use("/api/registros", registroRoutes); // <-- Adicione esta linha
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Backend rodando na porta ${PORT}`);
+app.listen(5000, () => {
+  console.log("API conectada na porta 5000");
 });

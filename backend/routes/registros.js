@@ -1,8 +1,10 @@
+// backend/routes/registros.js
 const express = require("express");
-const router = express.Router();
-const controller = require("../controllers/registroController");
+const { addRegistro } = require("../controllers/registroController.js");
 
-router.get("/", controller.listarRegistros);
-router.post("/", controller.criarRegistro);
+const router = express.Router();
+
+// Rota para criar um novo registro (POST)
+router.post("/", addRegistro);
 
 module.exports = router;
