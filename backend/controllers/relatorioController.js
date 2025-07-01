@@ -1,8 +1,8 @@
 // backend/controllers/relatorioController.js
 const db = require("../db/connection.js");
 
-exports.getDashboardSummary = (req, res) => {
-    // A lógica é a mesma, mas agora sobre a coluna `quantidade_resmas`
+// Função para o Dashboard
+const getDashboardSummary = (req, res) => {
     const q = `
         SELECT SUM(quantidade_resmas) * 500 AS totalFolhas 
         FROM registros 
@@ -17,4 +17,23 @@ exports.getDashboardSummary = (req, res) => {
         const total = data[0].totalFolhas || 0;
         return res.status(200).json({ totalFolhasMes: total });
     });
+};
+
+// Adicione aqui as outras funções de relatório que você tinha, se houver
+const relatorioPorSetor = (req, res) => {
+  // Sua lógica aqui...
+  res.json({ message: "Relatório por setor em desenvolvimento" });
+};
+
+const relatorioTotalMes = (req, res) => {
+  // Sua lógica aqui...
+  res.json({ message: "Relatório total do mês em desenvolvimento" });
+};
+
+
+// A linha mais importante: exporta TODAS as funções
+module.exports = {
+  getDashboardSummary,
+  relatorioPorSetor,
+  relatorioTotalMes
 };
