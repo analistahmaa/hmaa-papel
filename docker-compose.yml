@@ -1,44 +1,39 @@
 version: '3.8'
 
 services:
-  # FRONTEND: Agora é o nosso ponto de entrada. Ele já contém o Nginx.
   frontend:
     build: ./frontend
     container_name: hmaa-papel-frontend
     ports:
-      - "8550:80" # <-- A porta 8550 agora aponta diretamente para o Nginx dentro do container do frontend
-    # Nenhuma dependência de Nginx aqui
+      - "8550:80"
+    restart: unless-stopped
 
-  # BACKEND: Agora o Nginx vai fazer proxy para ele. Precisamos de uma forma de acessá-lo.
   backend:
     build: ./backend
     container_name: hmaa-papel-backend
-    # A política de restart não é mais tão crítica, mas é bom manter
     restart: unless-stopped
-    # ==========================================================
-    #           USANDO O SCRIPT PARA ESPERAR PELO DB
-    # ==========================================================
-    command: ["./wait-for-it.sh", "db", "--", "node", "index.js"]
     depends_on:
-      - db
+      db: # <-- MUDANÇA IMPORTANTE ABAIXO
+        condition: service_healthy # O backend só inicia DEPOIS que o DB estiver "saudável"
     environment:
       - DB_HOST=db
       - DB_USER=root
       - DB_PASSWORD=HMaa.25
       - DB_NAME=hmaa_controle_papel
     
-  # BANCO DE DADOS: Sem alterações
   db:
-    image: mysql:8.0
+    build: ./mysql # <-- MUDANÇA: Construir a imagem do MySQL a partir da nossa pasta
     container_name: hmaa-db
-    ports:
-      - "3307:3306"
+    restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=HMaa.25
       - MYSQL_DATABASE=hmaa_controle_papel
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck: # <-- MUDANÇA: Adiciona uma verificação de saúde
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
 volumes:
   mysql_data:
