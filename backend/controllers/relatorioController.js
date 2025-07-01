@@ -1,31 +1,45 @@
-const db = require("../db/connection");
+// backend/controllers/relatorioController.js
 
-exports.relatorioPorSetor = async (req, res) => {
-  const query = `
-    SELECT s.nome AS setor, SUM(r.quantidade) AS total
-    FROM registros r
-    JOIN setores s ON r.setor_id = s.id
-    GROUP BY s.id
-  `;
-  try {
-    const [results] = await db.query(query);
-    res.json(results);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Assumindo que seu arquivo de conexão se chama connection.js e está na pasta db
+const db = require("../db/connection.js");
+
+// SUA FUNÇÃO EXISTENTE
+const relatorioPorSetor = (req, res) => {
+  // Sua lógica aqui...
+  res.send("Respondendo do relatorioPorSetor");
 };
 
-exports.relatorioTotalMes = async (req, res) => {
-  const query = `
-    SELECT SUM(quantidade) AS total
-    FROM registros
-    WHERE MONTH(data) = MONTH(CURRENT_DATE())
-      AND YEAR(data) = YEAR(CURRENT_DATE())
+// SUA FUNÇÃO EXISTENTE
+const relatorioTotalMes = (req, res) => {
+  // Sua lógica aqui...
+  res.send("Respondendo do relatorioTotalMes");
+};
+
+// ==========================================================
+// NOVA FUNÇÃO PARA O DASHBOARD
+// ==========================================================
+const getDashboardSummary = (req, res) => {
+  // Query para somar a quantidade de folhas do mês e ano atuais
+  const q = `
+    SELECT SUM(quantidade) AS totalFolhas 
+    FROM registros 
+    WHERE MONTH(data) = MONTH(CURDATE()) AND YEAR(data) = YEAR(CURDATE());
   `;
-  try {
-    const [results] = await db.query(query);
-    res.json(results[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+
+  db.query(q, (err, data) => {
+    if (err) {
+      console.error("Erro no banco de dados:", err);
+      return res.status(500).json({ message: "Erro ao buscar dados do dashboard." });
+    }
+    // Se não houver registros, o resultado pode ser null. Tratamos isso.
+    const total = data[0].totalFolhas || 0;
+    return res.status(200).json({ totalFolhasMes: total });
+  });
+};
+
+// Exporte todas as funções
+module.exports = {
+  relatorioPorSetor,
+  relatorioTotalMes,
+  getDashboardSummary, // Adicione a nova função aqui
 };
