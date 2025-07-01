@@ -1,28 +1,30 @@
-// frontend/src/pages/Cadastrar.jsx
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, Grid, TextField, Button, Box, CircularProgress, Snackbar, Alert, MenuItem } from '@mui/material';
+import { Card, CardContent, CardHeader, Grid, TextField, Button, Box, CircularProgress, Snackbar, Alert, MenuItem, Typography } from '@mui/material';
 import axios from 'axios';
 
 function Cadastrar() {
-  const [setores, setSetores] = useState([]); // Armazena a lista de setores da API
+  const [setores, setSetores] = useState([]);
+  const [loadingSetores, setLoadingSetores] = useState(true); // <-- Novo estado para controlar o carregamento dos setores
   const [formData, setFormData] = useState({
-    setor_id: '', // Agora vamos enviar o ID do setor
+    setor_id: '',
     responsavel: '',
     quantidade_resmas: '',
     data: new Date().toISOString().split('T')[0],
   });
-  const [loading, setLoading] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  // Busca os setores da API quando o componente é montado
   useEffect(() => {
     const fetchSetores = async () => {
+      setLoadingSetores(true); // <-- Inicia o carregamento
       try {
         const response = await axios.get('/api/setores');
         setSetores(response.data);
       } catch (error) {
         console.error("Erro ao buscar setores:", error);
         setSnackbar({ open: true, message: 'Não foi possível carregar a lista de setores.', severity: 'error' });
+      } finally {
+        setLoadingSetores(false); // <-- Finaliza o carregamento
       }
     };
     fetchSetores();
@@ -34,7 +36,7 @@ function Cadastrar() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoadingSubmit(true);
 
     try {
       await axios.post('/api/registros', formData);
@@ -44,7 +46,7 @@ function Cadastrar() {
       const errorMessage = error.response?.data?.message || 'Erro ao salvar o lançamento.';
       setSnackbar({ open: true, message: errorMessage, severity: 'error' });
     } finally {
-      setLoading(false);
+      setLoadingSubmit(false);
     }
   };
 
@@ -60,20 +62,31 @@ function Cadastrar() {
           <Box component="form" onSubmit={handleSubmit} noValidate>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4}>
+                {/* ===== CAMPO DE SETOR CORRIGIDO ===== */}
                 <TextField
-                  select
-                  required
-                  fullWidth
                   id="setor_id"
+                  select
+                  fullWidth
+                  required
                   label="Setor"
-                  name="setor_id" // O nome do campo agora é setor_id
+                  name="setor_id"
                   value={formData.setor_id}
                   onChange={handleChange}
-                  defaultValue=""
+                  disabled={loadingSetores} // Desabilita enquanto carrega
+                  SelectProps={{
+                    displayEmpty: true,
+                  }}
                 >
-                  <MenuItem value="" disabled>Selecione um setor</MenuItem>
+                  {/* Item que aparece como placeholder */}
+                  <MenuItem value="" disabled>
+                    <em>{loadingSetores ? 'Carregando setores...' : 'Selecione um setor'}</em>
+                  </MenuItem>
+                  
+                  {/* Mapeia e exibe os setores carregados */}
                   {setores.map((setor) => (
-                    <MenuItem key={setor.id} value={setor.id}>{setor.nome}</MenuItem>
+                    <MenuItem key={setor.id} value={setor.id}>
+                      {setor.nome}
+                    </MenuItem>
                   ))}
                 </TextField>
               </Grid>
@@ -91,8 +104,8 @@ function Cadastrar() {
               </Grid>
             </Grid>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-              <Button type="submit" variant="contained" disabled={loading}>
-                {loading ? <CircularProgress size={24} /> : 'Salvar Lançamento'}
+              <Button type="submit" variant="contained" disabled={loadingSubmit || loadingSetores}>
+                {loadingSubmit ? <CircularProgress size={24} /> : 'Salvar Lançamento'}
               </Button>
             </Box>
           </Box>
