@@ -9,9 +9,6 @@ services:
     restart: unless-stopped
     ports:
       - "8550:80"
-    volumes:
-      # Monta a configuração do proxy
-      - ./nginx:/etc/nginx/conf.d 
     depends_on:
       - backend
 
