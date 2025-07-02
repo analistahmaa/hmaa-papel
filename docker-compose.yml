@@ -1,22 +1,24 @@
 version: '3.8'
 
 services:
-  # 1. SERVIÇO NGINX (PROXY REVERSO)
-  # Este é o único serviço exposto para o mundo exterior.
+  # SERVIÇO 1: NGINX (construído a partir da pasta frontend)
+  # Este serviço já contém o React e a configuração do Nginx.
   nginx:
-    build: ./frontend # Constrói a imagem Nginx+React
+    build:
+      context: ./frontend
     container_name: hmaa-proxy-server
     restart: unless-stopped
     ports:
-      - "8550:80"
+      - "8550:80" # Expõe a porta 80 do Nginx como 8550 no seu servidor.
     depends_on:
       - backend
 
-  # 2. SERVIÇO BACKEND (API)
+  # SERVIÇO 2: BACKEND (API Node.js)
   # Não precisa de 'ports', pois só o Nginx fala com ele.
   backend:
-    build: ./backend
-    container_name: hmaa-papel-backend # Nome usado no proxy_pass do Nginx
+    build:
+      context: ./backend
+    container_name: hmaa-papel-backend
     restart: unless-stopped
     depends_on:
       db:
@@ -26,12 +28,13 @@ services:
       - DB_USER=root
       - DB_PASSWORD=HMaa.25
       - DB_NAME=hmaa_controle_papel
-      - PORT=8550 # Garante que o backend rode na porta correta
+      - PORT=8550
 
-  # 3. SERVIÇO DO BANCO DE DADOS
-  # Não precisa de 'ports' em produção.
+  # SERVIÇO 3: BANCO DE DADOS (MySQL)
+  # Não é exposto publicamente.
   db:
-    build: ./mysql
+    build:
+      context: ./mysql
     container_name: hmaa-db
     restart: unless-stopped
     environment:
@@ -44,6 +47,7 @@ services:
       timeout: 20s
       retries: 10
 
+# Definição do volume para persistir os dados do MySQL
 volumes:
   mysql_data:
     name: hmaa-papel_mysql_data
