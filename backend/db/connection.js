@@ -11,7 +11,8 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,     // Lê do docker-compose.yml (valor: 'hmaa_controle_papel')
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  charset: 'utf8mb4'
 }).promise(); // <-- O '.promise()' no final é o que nos dá a interface async/await
 
 // Testa a conexão para garantir que tudo está funcionando ao iniciar o app

@@ -1,7 +1,3 @@
--- Garante que todos os comandos sejam executados mesmo se um falhar (por exemplo, se o DB já existir)
--- Isso não é ideal para produção, mas ótimo para depuração.
--- Vamos focar no essencial primeiro.
-
 CREATE DATABASE IF NOT EXISTS hmaa_controle_papel;
 USE hmaa_controle_papel;
 
@@ -29,7 +25,7 @@ CREATE TABLE IF NOT EXISTS registros (
     data DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (setor_id) REFERENCES setores(id)
-);
+)DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insere os setores fixos
 INSERT INTO setores (nome) VALUES
