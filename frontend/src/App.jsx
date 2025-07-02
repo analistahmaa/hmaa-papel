@@ -1,25 +1,31 @@
-// frontend/src/App.jsx
-
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-
-// Importe o Layout e as páginas
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Cadastrar from './pages/Cadastrar';
-import Listagem from './pages/Listagem';
-import Relatorios from './pages/Relatorios';
+import GerenciarUsuarios from './pages/GerenciarUsuarios';
+import Login from './pages/Login'; // <-- IMPORTAR
 
 function App() {
+  // Verifica se o usuário está logado lendo o token do localStorage
+  const isLoggedIn = !!localStorage.getItem('token');
+
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}> {/* O Layout envolve todas as páginas */}
-        <Route index element={<Dashboard />} /> {/* 'index' marca a rota padrão */}
-        <Route path="cadastrar" element={<Cadastrar />} />
-        <Route path="listagem" element={<Listagem />} />
-        <Route path="relatorios" element={<Relatorios />} />
-      </Route>
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        {/* Se o usuário NÃO estiver logado, a única rota é a de login */}
+        {!isLoggedIn ? (
+          <Route path="*" element={<Login />} />
+        ) : (
+          /* Se estiver logado, mostra as rotas protegidas dentro do Layout */
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="cadastrar" element={<Cadastrar />} />
+            <Route path="usuarios" element={<GerenciarUsuarios />} />
+            {/* Adicione outras rotas protegidas aqui */}
+          </Route>
+        )}
+      </Routes>
+    </BrowserRouter>
   );
 }
 
