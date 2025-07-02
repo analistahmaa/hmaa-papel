@@ -1,35 +1,44 @@
 // backend/controllers/relatorioController.js
-const db = require("../db/connection.js");
+const pool = require("../db/connection.js");
 
-// Função corrigida para somar RESMAS, não folhas.
+// Função para buscar os dados para os cards do Dashboard
 exports.getDashboardData = async (req, res) => {
   try {
-    // Query para somar o total de RESMAS no mês e ano atuais
+    const connection = await pool.getConnection();
+
+    // Query para somar o total de resmas no mês e ano atuais
     const query = `
-        SELECT SUM(quantidade_resmas) AS totalResmas
-        FROM registros 
-        WHERE MONTH(data) = MONTH(CURDATE()) AND YEAR(data) = YEAR(CURDATE());
+      SELECT SUM(quantidade_resmas) AS totalResmas
+      FROM registros
+      WHERE MONTH(data) = MONTH(CURRENT_DATE())
+        AND YEAR(data) = YEAR(CURRENT_DATE());
     `;
 
-    const [data] = await db.query(query);
+    const [rows] = await connection.query(query);
+    connection.release();
+
+    // Se não houver lançamentos, SUM retorna null. Tratamos isso retornando 0.
+    const total = rows[0].totalResmas || 0;
     
-    // Se não houver registros, SUM retorna null. Tratamos isso retornando 0.
-    const total = data[0].totalResmas || 0;
-    
-    // Retorna o total de resmas do mês
-    return res.status(200).json({ totalResmasMes: total });
+    // Responde com um objeto JSON contendo os dados
+    return res.status(200).json({
+      totalResmasMes: total,
+    });
 
   } catch (err) {
-    console.error("Erro no getDashboardData:", err);
-    return res.status(500).json({ message: "Erro ao buscar dados do dashboard." });
+    console.error("Erro ao buscar dados para o dashboard:", err);
+    return res.status(500).json({ message: "Erro interno ao processar dados do dashboard." });
   }
 };
 
-// Funções de placeholder para as outras rotas de relatório
+// --- Funções de Placeholder para futuros relatórios ---
+
 exports.relatorioPorSetor = async (req, res) => {
-  res.json({ message: "Relatório por setor em desenvolvimento" });
+  // TODO: Implementar a lógica para buscar dados por setor
+  res.status(501).json({ message: "Relatório por setor ainda não implementado." });
 };
 
 exports.relatorioTotalMes = async (req, res) => {
-  res.json({ message: "Relatório total do mês em desenvolvimento" });
+  // TODO: Implementar a lógica para buscar o total por mês
+  res.status(501).json({ message: "Relatório total do mês ainda não implementado." });
 };
