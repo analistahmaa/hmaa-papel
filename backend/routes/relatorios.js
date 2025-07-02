@@ -2,17 +2,16 @@
 const express = require("express");
 const router = express.Router();
 
-// Importa TODAS as funções do controller
 const { 
-  getDashboardSummary,
+  getDashboardData, // Renomeado para mais clareza
   relatorioPorSetor,
   relatorioTotalMes
 } = require("../controllers/relatorioController.js");
 
-// Rota para o summary do dashboard
-router.get("/summary", getDashboardSummary);
+// Rota para os dados do dashboard (usada pelo componente Dashboard.jsx)
+router.get("/dashboard", getDashboardData);
 
-// Suas rotas antigas, agora usando as funções importadas corretamente
+// Suas outras rotas
 router.get("/setor", relatorioPorSetor);
 router.get("/mes", relatorioTotalMes);
 
