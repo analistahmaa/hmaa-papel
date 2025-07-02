@@ -1,0 +1,12 @@
+# Ignora as dependências do Node, pois elas serão instaladas dentro do container
+node_modules
+
+# Ignora a pasta de build, se ela for gerada localmente
+build
+
+# Ignora logs do npm
+npm-debug.log
+
+# Ignora arquivos do sistema operacional
+.DS_Store
+Thumbs.db
