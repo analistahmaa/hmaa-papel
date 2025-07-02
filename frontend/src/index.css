@@ -1,0 +1,95 @@
+/* Estilos Globais e Reset Básico */
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #F7FAFC; /* Um cinza bem claro para o fundo */
+    color: #2D3748; /* Cor de texto padrão */
+}
+
+/* ========================================= */
+/* === MELHORIAS NO FORMULÁRIO DE CADASTRO === */
+/* ========================================= */
+
+/* Container principal do formulário */
+.card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 600px; /* Limita a largura do formulário em telas grandes */
+    margin: 2rem auto; /* Centraliza o card na página */
+}
+
+.card h2 {
+    margin-top: 0;
+    color: #2D3748;
+}
+
+/* Organiza cada grupo de label + input/select */
+.form-group {
+    display: flex;
+    flex-direction: column; /* Coloca a label acima do campo */
+    margin-bottom: 1.2rem; /* Espaçamento entre os campos */
+}
+
+/* Estiliza as labels */
+.form-group label {
+    margin-bottom: 0.5rem; /* Pequeno espaço entre a label e o campo */
+    font-weight: 500;
+    color: #4A5568; /* Um cinza escuro, mais suave que preto puro */
+    font-size: 0.9rem;
+}
+
+/* Adiciona um asterisco vermelho usando CSS, em vez de no HTML */
+.form-group label.required::after {
+    content: " *"; /* Adiciona um espaço antes do asterisco */
+    color: #E53E3E; /* Vermelho para indicar obrigatoriedade */
+    font-weight: bold;
+}
+
+/* Estiliza todos os campos de formulário (input, select) */
+.form-group input,
+.form-group select {
+    padding: 0.8rem;
+    border: 1px solid #CBD5E0;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #FFFFFF;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Efeito de foco para quando o usuário clica no campo */
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #3182CE; /* Azul do seu header */
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+/* Cor especial para o placeholder do select quando nada foi selecionado */
+.form-group select:invalid {
+    color: #718096; /* Cinza médio */
+}
+
+/* Estilo do botão de salvar */
+.btn-salvar {
+    background-color: #3182CE; /* Azul do header */
+    color: white;
+    border: none;
+    padding: 0.9rem 1.5rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%; /* Ocupa a largura toda do container */
+    margin-top: 1rem;
+}
+
+.btn-salvar:hover {
+    background-color: #2B6CB0; /* Um azul um pouco mais escuro */
+}
