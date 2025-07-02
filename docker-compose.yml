@@ -25,6 +25,8 @@ services:
     build: ./mysql # <-- MUDANÇA: Construir a imagem do MySQL a partir da nossa pasta
     container_name: hmaa-db
     restart: unless-stopped
+    ports:
+      - "3307:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=HMaa.25
       - MYSQL_DATABASE=hmaa_controle_papel
