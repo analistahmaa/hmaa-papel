@@ -25,7 +25,7 @@ app.use("/relatorios", relatorioRoutes); // <-- MUDANÇA AQUI
 app.use("/registros", registroRoutes);   // <-- MUDANÇA AQUI
 app.use("/setores", setorRoutes);       // <-- MUDANÇA AQUI
 
-const PORT = 5000;
+const PORT = 8550;
 app.listen(PORT, () => {
   console.log(`API conectada e rodando na porta ${PORT}`);
 });
