@@ -1,7 +1,7 @@
 # Estágio 1: Construir a aplicação React
-FROM node:18-alpine AS builder
+FROM node:18-alpine AS build
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copia os arquivos de dependência e instala
 COPY package.json package-lock.json ./
@@ -15,14 +15,10 @@ RUN npm run build
 
 
 # Estágio 2: Servir a aplicação com Nginx
-FROM nginx:1.27-alpine
+FROM nginx:stable-alpine
 
-# Copia a configuração do Nginx que criamos (para lidar com as rotas do React)
-# Vamos precisar criar este arquivo
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copia os arquivos estáticos gerados no estágio 'builder' para a pasta do Nginx
-COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+# Copia SOMENTE os arquivos estáticos gerados no estágio 'build' para a pasta do Nginx
+COPY --from=build /app/build /usr/share/nginx/html
 
 # Expõe a porta 80, que o Nginx usa por padrão
 EXPOSE 80
