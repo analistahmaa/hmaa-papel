@@ -11,10 +11,10 @@ CREATE TABLE IF NOT EXISTS setores (
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100),
-    email VARCHAR(100) UNIQUE,
+    usuario VARCHAR(50) UNIQUE NOT NULL,
     senha VARCHAR(255),
     tipo ENUM('admin', 'operador') DEFAULT 'operador'
-);
+)DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabela de registros
 CREATE TABLE IF NOT EXISTS registros (
