@@ -7,8 +7,8 @@ const usuariosParaCriar = [
 ];
 
 const dbConfig = {
-  host: '172.16.5.239',
-  port: 3307,
+  host: 'db',
+  // port: 3307,
   user: 'root',
   password: 'HMaa.25',
   database: 'hmaa_controle_papel'
