@@ -1,7 +1,8 @@
-# nginx/Dockerfile
+# Usa uma imagem oficial e leve do Nginx
+FROM nginx:stable-alpine
 
-# Comece com a imagem oficial do Nginx
-FROM nginx:1.25-alpine
+# Limpa a configuração padrão para evitar conflitos
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Copie nosso arquivo de configuração local para o local correto dentro da imagem
-COPY default.conf /etc/nginx/conf.d/default.conf
+# Copia a nossa configuração personalizada para o local correto
+COPY default.conf /etc/nginx/conf.d/

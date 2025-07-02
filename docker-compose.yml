@@ -1,38 +1,48 @@
 version: '3.8'
 
 services:
-  frontend:
-    build: ./frontend
-    container_name: hmaa-papel-frontend
-    ports:
-      - "8550:80"
+  # 1. SERVIÇO NGINX (PROXY REVERSO)
+  # Este é o único serviço exposto para o mundo exterior.
+  nginx:
+    build: ./nginx  # Constrói a imagem a partir da nossa pasta nginx
+    container_name: hmaa-proxy-server
     restart: unless-stopped
+    ports:
+      - "8550:80" # A porta 8550 do seu PC aponta para a porta 80 do Nginx
+    volumes:
+      # Montamos a pasta de build do frontend dentro do Nginx
+      - ./frontend/build:/var/www/html
+    depends_on:
+      - backend
 
+  # 2. SERVIÇO BACKEND (API)
+  # Não precisa de 'ports', pois só o Nginx fala com ele.
   backend:
     build: ./backend
-    container_name: hmaa-papel-backend
+    container_name: hmaa-papel-backend # Nome usado no proxy_pass do Nginx
     restart: unless-stopped
     depends_on:
-      db: # <-- MUDANÇA IMPORTANTE ABAIXO
-        condition: service_healthy # O backend só inicia DEPOIS que o DB estiver "saudável"
+      db:
+        condition: service_healthy
     environment:
       - DB_HOST=db
       - DB_USER=root
       - DB_PASSWORD=HMaa.25
       - DB_NAME=hmaa_controle_papel
-    
+      - PORT=8550 # Garante que o backend rode na porta correta
+
+  # 3. SERVIÇO DO BANCO DE DADOS
+  # Não precisa de 'ports' em produção.
   db:
-    build: ./mysql # <-- MUDANÇA: Construir a imagem do MySQL a partir da nossa pasta
+    build: ./mysql
     container_name: hmaa-db
     restart: unless-stopped
-    ports:
-      - "3307:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=HMaa.25
       - MYSQL_DATABASE=hmaa_controle_papel
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck: # <-- MUDANÇA: Adiciona uma verificação de saúde
+    healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
