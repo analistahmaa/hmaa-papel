@@ -5,16 +5,16 @@ USE hmaa_controle_papel;
 CREATE TABLE IF NOT EXISTS setores (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) UNIQUE NOT NULL
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabela de usuários
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100),
+    nome VARCHAR(100) NOT NULL,
     usuario VARCHAR(50) UNIQUE NOT NULL,
-    senha VARCHAR(255),
-    tipo ENUM('admin', 'operador') DEFAULT 'operador'
-)DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    senha VARCHAR(255) NOT NULL,
+    tipo ENUM('admin', 'operador') DEFAULT 'operador' NOT NULL
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabela de registros
 CREATE TABLE IF NOT EXISTS registros (
@@ -25,9 +25,9 @@ CREATE TABLE IF NOT EXISTS registros (
     data DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (setor_id) REFERENCES setores(id)
-)DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insere os setores fixos
+-- Insere os setores fixos (Isto está correto e pode continuar aqui)
 INSERT INTO setores (nome) VALUES
 ('RECEPÇÃO TRIAGEM'), ('RECEPÇÃO AMBULATÓRIO'), ('ENFERMARIA'), ('UTI'), 
 ('CENTRO CIRÚRGICO'), ('CLASSIFICAÇÃO DE RISCO'), ('AMBULATÓRIO DE QUEIMADOS'), 
@@ -36,7 +36,8 @@ INSERT INTO setores (nome) VALUES
 ('SALA VERMELHA'), ('CONSULTÓRIO TRIAGEM')
 ON DUPLICATE KEY UPDATE nome=nome; -- Evita erro se o setor já existir
 
--- Insere um usuário admin padrão
-INSERT INTO usuarios (nome, email, senha, tipo) VALUES
-('Administrador', 'admin@hmaa.com', 'senha_hash_aqui', 'admin')
-ON DUPLICATE KEY UPDATE nome='Administrador'; -- Evita erro se o usuário já existir
+
+-- =========================================================================
+-- REMOVIDO o bloco de inserção de usuário daqui.
+-- A criação do usuário admin agora é feita exclusivamente pelo `seed.js`.
+-- =========================================================================
