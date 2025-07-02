@@ -12,6 +12,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use((req, res, next) => {
+    // Definimos o cabeçalho para todas as rotas que virão a seguir
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    next(); // Passa para a próxima rota/middleware
+});
+
 // ==========================================================
 //           REGISTRO DE ROTAS SEM O PREFIXO /api
 // ==========================================================
