@@ -2,43 +2,39 @@
 
 const mysql = require('mysql2');
 
-// 1. Cria o pool de conexões base, sem chamar .promise() ainda.
-// Guardamos a referência dele na variável 'pool'.
+// 1. Cria o pool de conexões base.
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,         // Lê do docker-compose.yml (valor: 'db')
-  user: process.env.DB_USER,         // Lê do docker-compose.yml (valor: 'root')
-  password: process.env.DB_PASSWORD, // Lê do docker-compose.yml (valor: 'HMaa.25')
-  database: process.env.DB_NAME,     // Lê do docker-compose.yml (valor: 'hmaa_controle_papel')
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  charset: 'utf8mb4' // Mantemos esta linha, pois é uma boa prática.
+  charset: 'utf8mb4' // Primeira linha de defesa
 });
 
-// 2. Usamos a referência 'pool' para registrar o listener de evento.
-// Este é o passo crucial para forçar o charset em cada nova conexão.
+// 2. A "Bala de Prata": Evento que é disparado para CADA nova conexão.
+// Isso força o charset para a sessão, sobrepondo qualquer padrão do servidor.
 pool.on('connection', function (connection) {
-  console.log('Uma nova conexão foi estabelecida com o DB. Configurando charset...');
-  // Executa comandos SQL para garantir que a sessão da conexão use utf8mb4.
-  // Usamos connection.query aqui, pois é a interface de callback do objeto de conexão base.
+  console.log('Uma nova conexão foi estabelecida com o DB. Forçando charset para utf8mb4.');
   connection.query("SET NAMES 'utf8mb4'");
   connection.query("SET CHARACTER SET utf8mb4");
 });
 
-// 3. Agora, criamos a versão com promessas a partir do pool já configurado.
+// 3. Exporta a interface de Promises, que todos os seus controllers usam.
 const db = pool.promise();
 
-// 4. Testa a conexão usando a interface de promessas 'db'
+// 4. Testa a conexão na inicialização para feedback rápido.
 db.getConnection()
   .then(connection => {
     console.log('✅ Conexão com o banco de dados MySQL estabelecida com sucesso!');
-    connection.release(); // Libera a conexão de volta para o pool
+    connection.release();
   })
   .catch(err => {
-    console.error('❌ ERRO ao conectar com o banco de dados:', err); // Loga o erro completo
-    // Em caso de falha na inicialização, encerrar o processo é uma boa estratégia em containers.
+    console.error('❌ ERRO ao conectar com o banco de dados:', err.message);
     process.exit(1); 
   });
 
-// 5. Exporta a interface de promessas para o resto da sua aplicação usar com async/await.
+// 5. Exporta a conexão configurada para o resto da aplicação.
 module.exports = db;
