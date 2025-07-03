@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   nginx:
+    # Constrói a imagem usando o Dockerfile da pasta frontend
     build:
       context: ./frontend
     container_name: hmaa-proxy-server
