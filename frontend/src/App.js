@@ -2,8 +2,8 @@
 import React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline'; // Para resetar o CSS padrão
-import theme from './theme'; // Importe seu tema
-import Dashboard from './Dashboard'; // Seu componente Dashboard
+import theme from './theme/theme'; // Importe seu tema
+import Dashboard from './pages/Dashboard'; // Seu componente Dashboard
 
 function App() {
   return (
