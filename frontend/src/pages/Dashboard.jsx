@@ -29,30 +29,63 @@ const ConsumoPorSetorChart = () => {
 
   useEffect(() => {
     axios.get('/api/relatorios/total-por-setor')
-      .then(response => setData(response.data.slice(0, 5)))
+      .then(response => {
+        // Pega os top 5 e garante que o total é um número
+        const formattedData = response.data.slice(0, 5).map(item => ({
+          ...item,
+          total_resmas: Number(item.total_resmas) || 0,
+        }));
+        setData(formattedData);
+      })
       .catch(error => console.error("Erro no gráfico:", error))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <Card elevation={4} sx={{ height: '100%', borderRadius: '12px', p: 2 }}>
-      <CardHeader title="Top 5 Consumo por Setor (Mês)" titleTypographyProps={{ fontWeight: 'bold' }} avatar={<Box sx={{ bgcolor: '#f57c00', borderRadius: '50%', p: 1, display: 'flex' }}><Assessment sx={{ color: '#fff' }} /></Box>} />
-      <CardContent>
-        {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 250 }}><CircularProgress color="warning" /></Box> :
-          <Box sx={{ height: 250 }}> {/* Define uma altura fixa para o container do gráfico */}
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} layout="vertical" margin={{ top: 5, right: 40, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" hide />
-                <YAxis type="category" dataKey="nome" width={150} tick={{ fontSize: 12 }} interval={0} />
-                <Tooltip cursor={{fill: '#f5f5f5'}} formatter={(value) => [`${value} resmas`, 'Total']} />
-                <Bar dataKey="total_resmas" fill="#f57c00" barSize={25}>
-                  <LabelList dataKey="total_resmas" position="right" style={{ fill: 'black', fontSize: '14px' }} />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+    // O Card agora tem flexbox para esticar o conteúdo
+    <Card elevation={4} sx={{ 
+      height: '100%', 
+      borderRadius: '12px', 
+      display: 'flex', 
+      flexDirection: 'column' 
+    }}>
+      <CardHeader 
+        title="Top 5 Consumo por Setor (Mês)" 
+        titleTypographyProps={{ fontWeight: 'bold' }} 
+        avatar={<Box sx={{ bgcolor: '#f57c00', borderRadius: '50%', p: 1, display: 'flex' }}><Assessment sx={{ color: '#fff' }} /></Box>} 
+      />
+      {/* O CardContent agora cresce para preencher o espaço vertical */}
+      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
+            <CircularProgress color="warning" />
           </Box>
-        }
+        ) : (
+          // O ResponsiveContainer agora vai ocupar todo o espaço do CardContent
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} layout="vertical" margin={{ top: 5, right: 40, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" hide />
+              <YAxis 
+                type="category" 
+                dataKey="nome" 
+                width={150} 
+                tick={{ fontSize: 12, fill: '#555' }} 
+                interval={0} 
+                axisLine={false} 
+                tickLine={false}
+              />
+              <Tooltip 
+                cursor={{fill: '#f5f5f5'}} 
+                formatter={(value) => [`${value} resmas`, 'Total']} 
+                contentStyle={{ borderRadius: '8px', boxShadow: '2px 2px 5px rgba(0,0,0,0.1)' }}
+              />
+              <Bar dataKey="total_resmas" fill="#ff9800" barSize={30} radius={[0, 8, 8, 0]}>
+                <LabelList dataKey="total_resmas" position="right" style={{ fill: 'black', fontSize: '14px', fontWeight: 'bold' }} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </CardContent>
     </Card>
   );
