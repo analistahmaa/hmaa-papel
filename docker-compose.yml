@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # SERVIÇO 1: NGINX (construído a partir da pasta frontend)
-  # Este serviço já contém o React e a configuração do Nginx.
+  # Este serviço contém o React e a configuração do Nginx, tudo em uma única imagem.
   nginx:
     build:
       context: ./frontend
