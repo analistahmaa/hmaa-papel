@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Grid, Card, CardContent, CardHeader, Typography, Box, 
-  CircularProgress, Alert, LinearProgress, List, ListItem, ListItemText 
+  CircularProgress, Alert, LinearProgress, List, ListItem, ListItemText, Divider 
 } from '@mui/material';
 import { Layers, Assessment, History } from '@mui/icons-material';
 import axios from 'axios';
@@ -47,11 +47,7 @@ const TotalPorSetorCard = () => {
   return (
     <Card elevation={4} sx={{ height: '100%', borderRadius: '12px' }}>
       <CardHeader
-        avatar={
-          <Box sx={{ bgcolor: '#f57c00', borderRadius: '50%', p: 1, display: 'flex' }}>
-            <Assessment sx={{ color: '#fff' }} />
-          </Box>
-        }
+        avatar={<Box sx={{ bgcolor: '#f57c00', borderRadius: '50%', p: 1, display: 'flex' }}><Assessment sx={{ color: '#fff' }} /></Box>}
         title="Consumo por Setor (Mês)"
         titleTypographyProps={{ fontWeight: 'bold' }}
       />
@@ -63,13 +59,9 @@ const TotalPorSetorCard = () => {
             <Typography color="text.secondary" sx={{ mt: 2 }}>Nenhum lançamento no mês.</Typography>
           ) : (
             <List dense sx={{ p: 0 }}>
-              {data.slice(0, 5).map((item) => ( // Mostra o Top 5
+              {data.slice(0, 5).map((item) => (
                 <ListItem key={item.nome} disablePadding>
-                  <ListItemText
-                    primary={item.nome}
-                    secondary={`${item.total_resmas} resmas`}
-                    primaryTypographyProps={{ fontWeight: 500 }}
-                  />
+                  <ListItemText primary={item.nome} secondary={`${item.total_resmas} resmas`} primaryTypographyProps={{ fontWeight: 500 }}/>
                 </ListItem>
               ))}
             </List>
@@ -80,15 +72,49 @@ const TotalPorSetorCard = () => {
   );
 };
 
+// --- NOVO COMPONENTE PARA O CARD "ÚLTIMOS LANÇAMENTOS" ---
+const UltimosLancamentosCard = () => {
+  // NOTA: A lógica real para buscar os últimos lançamentos deveria ser implementada no backend.
+  // Por enquanto, usamos dados de exemplo para completar o layout.
+  const lancamentosExemplo = [
+    { id: 1, setor: 'ENFERMARIA', data: 'Hoje' },
+    { id: 2, setor: 'UTI', data: 'Ontem' },
+    { id: 3, setor: 'RECEPÇÃO TRIAGEM', data: '01/07/2025' },
+  ];
+
+  return (
+    <Card elevation={4} sx={{ height: '100%', borderRadius: '12px' }}>
+      <CardHeader
+        avatar={<Box sx={{ bgcolor: '#43a047', borderRadius: '50%', p: 1, display: 'flex' }}><History sx={{ color: '#fff' }} /></Box>}
+        title="Últimos Lançamentos"
+        titleTypographyProps={{ fontWeight: 'bold' }}
+      />
+      <CardContent>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          (Funcionalidade em desenvolvimento)
+        </Typography>
+        <List dense>
+          {lancamentosExemplo.map((item, index) => (
+            <React.Fragment key={item.id}>
+              <ListItem disableGutters>
+                <ListItemText primary={item.setor} secondary={`Em: ${item.data}`} />
+              </ListItem>
+              {index < lancamentosExemplo.length - 1 && <Divider component="li" />}
+            </React.Fragment>
+          ))}
+        </List>
+      </CardContent>
+    </Card>
+  );
+};
+
 
 // --- COMPONENTE PRINCIPAL DO DASHBOARD ---
-
 function Dashboard() {
   const [totalGeralData, setTotalGeralData] = useState({ totalResmasMes: 0 });
   const [loadingTotalGeral, setLoadingTotalGeral] = useState(true);
   const [errorTotalGeral, setErrorTotalGeral] = useState(null);
 
-  // useEffect para o card "Total Geral no Mês"
   useEffect(() => {
     const fetchTotalGeralData = async () => {
       setLoadingTotalGeral(true);
@@ -132,16 +158,9 @@ function Dashboard() {
           <TotalPorSetorCard />
         </Grid>
         
-        {/* --- Card 3: Últimos Lançamentos (Placeholder) --- */}
+        {/* --- Card 3: Últimos Lançamentos --- */}
         <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Últimos Lançamentos"
-            value="..."
-            unit="(em breve)"
-            icon={<History />}
-            color="#43a047"
-            loading={true} // Mantemos como loading para indicar que está em desenvolvimento
-          />
+          <UltimosLancamentosCard />
         </Grid>
       </Grid>
     </Box>

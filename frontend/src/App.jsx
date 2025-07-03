@@ -7,6 +7,7 @@ import Cadastrar from './pages/Cadastrar';
 import GerenciarUsuarios from './pages/GerenciarUsuarios';
 import Login from './pages/Login';
 import VerLancamentos from './pages/VerLancamentos';
+import Relatorios from './pages/Relatorios';
 
 function App() {
   const isLoggedIn = !!localStorage.getItem('token');
@@ -25,6 +26,7 @@ function App() {
           <Route path="relatorios" element={<div>Página de Relatórios em Construção</div>} />
           <Route path="usuarios" element={<GerenciarUsuarios />} />
           <Route path="lancamentos" element={<VerLancamentos />} />
+          <Route path="relatorios" element={<Relatorios />} />
         </Route>
       )}
     </Routes>
