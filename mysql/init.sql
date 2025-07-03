@@ -27,17 +27,11 @@ CREATE TABLE IF NOT EXISTS registros (
     FOREIGN KEY (setor_id) REFERENCES setores(id)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insere os setores fixos (Isto está correto e pode continuar aqui)
+-- Insere os setores fixos
 INSERT INTO setores (nome) VALUES
 ('RECEPÇÃO TRIAGEM'), ('RECEPÇÃO AMBULATÓRIO'), ('ENFERMARIA'), ('UTI'), 
 ('CENTRO CIRÚRGICO'), ('CLASSIFICAÇÃO DE RISCO'), ('AMBULATÓRIO DE QUEIMADOS'), 
 ('NÚCLEO EPIDEMIOLÓGICO'), ('NIR'), ('RECURSOS HUMANOS'), ('FATURAMENTO'), 
 ('SALA AMARELA'), ('FARMÁCIA'), ('QUALIDADE'), ('ULTRASSOM'), ('ENDOSCOPIA'), 
 ('SALA VERMELHA'), ('CONSULTÓRIO TRIAGEM')
-ON DUPLICATE KEY UPDATE nome=nome; -- Evita erro se o setor já existir
-
-
--- =========================================================================
--- REMOVIDO o bloco de inserção de usuário daqui.
--- A criação do usuário admin agora é feita exclusivamente pelo `seed.js`.
--- =========================================================================
+ON DUPLICATE KEY UPDATE nome=nome;
