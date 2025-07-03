@@ -7,7 +7,8 @@ const {
   getDashboardData,
   relatorioPorSetor,
   relatorioTotalMes,
-  getTotalPorSetorMes
+  getTotalPorSetorMes,
+  getUltimosLancamentos
 } = require("../controllers/relatorioController.js");
 
 
@@ -19,5 +20,6 @@ router.get("/dashboard", getDashboardData);
 router.get("/por-setor", relatorioPorSetor);
 router.get("/total-mes", relatorioTotalMes);
 router.get("/total-por-setor", getTotalPorSetorMes);
+router.get("/ultimos-lancamentos", getUltimosLancamentos);
 
 module.exports = router;

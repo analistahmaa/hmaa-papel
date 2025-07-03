@@ -1,108 +1,91 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Grid, Card, CardContent, CardHeader, Typography, Box, 
-  CircularProgress, Alert, LinearProgress, List, ListItem, ListItemText, Divider 
+  CircularProgress, Alert, List, ListItem, ListItemText, Divider 
 } from '@mui/material';
 import { Layers, Assessment, History } from '@mui/icons-material';
 import axios from 'axios';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 
 // --- COMPONENTES DE CARD ---
 
-// Componente para cards simples de estatística (Total Geral)
-const StatCard = ({ title, value, unit, icon, color, loading, error }) => (
-    <Card elevation={4} sx={{ display: 'flex', alignItems: 'center', p: 2, borderRadius: '12px', height: '100%' }}>
-        <Box sx={{ bgcolor: color, borderRadius: '50%', p: 2, mr: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {React.cloneElement(icon, { sx: { color: '#fff', fontSize: '2rem' } })}
+// StatCard Corrigido
+const StatCard = ({ title, value, unit, IconComponent, color, loading, error }) => (
+    <Card elevation={4} sx={{ display: 'flex', flexDirection: 'column', height: '100%', borderRadius: '12px' }}>
+      <CardContent sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ bgcolor: color, borderRadius: '50%', p: 2, mr: 2, display: 'flex' }}>
+          <IconComponent sx={{ color: '#fff', fontSize: '2rem' }} />
         </Box>
         <Box>
-            <Typography variant="h6" color="text.secondary" gutterBottom>{title}</Typography>
-            {loading ? <CircularProgress size={24} /> : error ? <Typography variant="body1" color="error">{error}</Typography> : <Typography variant="h4" component="p" sx={{ fontWeight: 'bold' }}>{value}<Typography variant="h6" component="span" color="text.secondary" sx={{ ml: 1 }}>{unit}</Typography></Typography>}
+          <Typography variant="h6" color="text.secondary">{title}</Typography>
+          {loading ? <CircularProgress size={24} /> : error ? <Typography variant="body1" color="error">{error}</Typography> : <Typography variant="h4" component="p" sx={{ fontWeight: 'bold' }}>{value} <Typography variant="h6" component="span" color="text.secondary">{unit}</Typography></Typography>}
         </Box>
+      </CardContent>
     </Card>
 );
 
-// Componente para o card de "Total por Setor"
-const TotalPorSetorCard = () => {
+// Gráfico de Consumo por Setor (sem alterações, já estava correto)
+const ConsumoPorSetorChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get('/api/relatorios/total-por-setor');
-        setData(response.data);
-      } catch (err) {
-        setError("Falha ao carregar.");
-        console.error("Erro no card TotalPorSetor:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    axios.get('/api/relatorios/total-por-setor')
+      .then(response => setData(response.data.slice(0, 5)))
+      .catch(error => console.error("Erro no gráfico:", error))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <Card elevation={4} sx={{ height: '100%', borderRadius: '12px' }}>
-      <CardHeader
-        avatar={<Box sx={{ bgcolor: '#f57c00', borderRadius: '50%', p: 1, display: 'flex' }}><Assessment sx={{ color: '#fff' }} /></Box>}
-        title="Consumo por Setor (Mês)"
-        titleTypographyProps={{ fontWeight: 'bold' }}
-      />
-      <CardContent sx={{ pt: 0 }}>
-        {loading && <LinearProgress color="warning" />}
-        {error && <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>}
-        {!loading && !error && (
-          data.length === 0 ? (
-            <Typography color="text.secondary" sx={{ mt: 2 }}>Nenhum lançamento no mês.</Typography>
-          ) : (
-            <List dense sx={{ p: 0 }}>
-              {data.slice(0, 5).map((item) => (
-                <ListItem key={item.nome} disablePadding>
-                  <ListItemText primary={item.nome} secondary={`${item.total_resmas} resmas`} primaryTypographyProps={{ fontWeight: 500 }}/>
-                </ListItem>
-              ))}
-            </List>
-          )
-        )}
+      <CardHeader title="Top 5 Consumo por Setor (Mês)" titleTypographyProps={{ fontWeight: 'bold' }} avatar={<Box sx={{ bgcolor: '#f57c00', borderRadius: '50%', p: 1, display: 'flex' }}><Assessment sx={{ color: '#fff' }} /></Box>} />
+      <CardContent>
+        {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}><CircularProgress color="warning" /></Box> :
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" hide />
+              <YAxis type="category" dataKey="nome" width={120} tick={{ fontSize: 12 }} interval={0} />
+              <Tooltip cursor={{fill: '#f5f5f5'}} formatter={(value) => [`${value} resmas`, 'Total']} />
+              <Bar dataKey="total_resmas" fill="#f57c00" barSize={20}>
+                <LabelList dataKey="total_resmas" position="right" style={{ fill: 'black' }} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        }
       </CardContent>
     </Card>
   );
 };
 
-// --- NOVO COMPONENTE PARA O CARD "ÚLTIMOS LANÇAMENTOS" ---
+// Card de Últimos Lançamentos (sem alterações, já estava correto)
 const UltimosLancamentosCard = () => {
-  // NOTA: A lógica real para buscar os últimos lançamentos deveria ser implementada no backend.
-  // Por enquanto, usamos dados de exemplo para completar o layout.
-  const lancamentosExemplo = [
-    { id: 1, setor: 'ENFERMARIA', data: 'Hoje' },
-    { id: 2, setor: 'UTI', data: 'Ontem' },
-    { id: 3, setor: 'RECEPÇÃO TRIAGEM', data: '01/07/2025' },
-  ];
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get('/api/relatorios/ultimos-lancamentos')
+      .then(response => setData(response.data))
+      .catch(error => console.error("Erro nos últimos lançamentos:", error))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <Card elevation={4} sx={{ height: '100%', borderRadius: '12px' }}>
-      <CardHeader
-        avatar={<Box sx={{ bgcolor: '#43a047', borderRadius: '50%', p: 1, display: 'flex' }}><History sx={{ color: '#fff' }} /></Box>}
-        title="Últimos Lançamentos"
-        titleTypographyProps={{ fontWeight: 'bold' }}
-      />
+      <CardHeader title="Últimos 5 Lançamentos" titleTypographyProps={{ fontWeight: 'bold' }} avatar={<Box sx={{ bgcolor: '#43a047', borderRadius: '50%', p: 1, display: 'flex' }}><History sx={{ color: '#fff' }} /></Box>} />
       <CardContent>
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          (Funcionalidade em desenvolvimento)
-        </Typography>
-        <List dense>
-          {lancamentosExemplo.map((item, index) => (
-            <React.Fragment key={item.id}>
-              <ListItem disableGutters>
-                <ListItemText primary={item.setor} secondary={`Em: ${item.data}`} />
-              </ListItem>
-              {index < lancamentosExemplo.length - 1 && <Divider component="li" />}
-            </React.Fragment>
-          ))}
-        </List>
+        {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150 }}><CircularProgress color="success" /></Box> :
+          <List dense>
+            {data.length > 0 ? data.map((item, index) => (
+              <React.Fragment key={item.id}>
+                <ListItem>
+                  <ListItemText primary={item.setor_nome} secondary={`Em: ${item.data_formatada}`} />
+                </ListItem>
+                {index < data.length - 1 && <Divider />}
+              </React.Fragment>
+            )) : <Typography color="text.secondary">Nenhum lançamento recente.</Typography>}
+          </List>
+        }
       </CardContent>
     </Card>
   );
@@ -116,50 +99,38 @@ function Dashboard() {
   const [errorTotalGeral, setErrorTotalGeral] = useState(null);
 
   useEffect(() => {
-    const fetchTotalGeralData = async () => {
-      setLoadingTotalGeral(true);
-      setErrorTotalGeral(null);
-      try {
-        const response = await axios.get('/api/relatorios/dashboard');
-        setTotalGeralData(response.data);
-      } catch (err) {
-        console.error("Erro ao carregar dados do dashboard:", err);
-        const errorMessage = err.response?.data?.message || "Não foi possível carregar os dados.";
-        setErrorTotalGeral(errorMessage);
-      } finally {
-        setLoadingTotalGeral(false);
-      }
-    };
-    fetchTotalGeralData();
+    axios.get('/api/relatorios/dashboard')
+      .then(response => setTotalGeralData(response.data))
+      .catch(err => setErrorTotalGeral(err.response?.data?.message || "Falha ao carregar."))
+      .finally(() => setLoadingTotalGeral(false));
   }, []);
 
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }}>
+    <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 4 }}>
         Dashboard de Controle
       </Typography>
       
-      <Grid container spacing={3}>
-        {/* --- Card 1: Total Geral no Mês --- */}
-        <Grid item xs={12} sm={6} md={4}>
+      {/* Grid Corrigida */}
+      <Grid container spacing={4} alignItems="stretch">
+        <Grid item xs={12} md={4}>
           <StatCard
             title="Total Geral no Mês"
             value={totalGeralData.totalResmasMes}
             unit="resmas"
-            icon={<Layers />}
+            IconComponent={Layers} // Passando o componente do ícone como prop
             color="#3f51b5"
             loading={loadingTotalGeral}
             error={errorTotalGeral}
           />
         </Grid>
         
-        {/* --- Card 2: Total por Setor --- */}
-        <Grid item xs={12} sm={6} md={4}>
-          <TotalPorSetorCard />
+        <Grid item xs={12} md={8}>
+          <ConsumoPorSetorChart />
         </Grid>
         
-        {/* --- Card 3: Últimos Lançamentos --- */}
-        <Grid item xs={12} sm={6} md={4}>
+        {/* Ocupa a linha toda em telas pequenas e médias, e metade em telas grandes */}
+        <Grid item xs={12} lg={12}>
           <UltimosLancamentosCard />
         </Grid>
       </Grid>

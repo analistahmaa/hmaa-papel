@@ -68,3 +68,23 @@ exports.getTotalPorSetorMes = async (req, res) => {
     return res.status(500).json({ message: "Erro interno ao buscar dados por setor." });
   }
 };
+
+exports.getUltimosLancamentos = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        r.id,
+        s.nome AS setor_nome,
+        DATE_FORMAT(r.data, '%d/%m/%Y') AS data_formatada
+      FROM registros r
+      JOIN setores s ON r.setor_id = s.id
+      ORDER BY r.data DESC, r.id DESC
+      LIMIT 5;
+    `;
+    const [rows] = await pool.query(query);
+    return res.status(200).json(rows);
+  } catch (err) {
+    console.error("Erro ao buscar últimos lançamentos:", err);
+    return res.status(500).json({ message: "Erro interno ao buscar últimos lançamentos." });
+  }
+};
