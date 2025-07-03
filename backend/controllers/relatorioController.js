@@ -42,3 +42,29 @@ exports.relatorioTotalMes = async (req, res) => {
   // TODO: Implementar a lógica para buscar o total por mês
   res.status(501).json({ message: "Relatório total do mês ainda não implementado." });
 };
+
+exports.getTotalPorSetorMes = async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+
+    // Query que agrupa os registros por setor e soma as resmas
+    const query = `
+      SELECT s.nome, SUM(r.quantidade_resmas) AS total_resmas
+      FROM registros r
+      JOIN setores s ON r.setor_id = s.id
+      WHERE MONTH(r.data) = MONTH(CURRENT_DATE())
+        AND YEAR(r.data) = YEAR(CURRENT_DATE())
+      GROUP BY s.nome
+      ORDER BY total_resmas DESC;
+    `;
+
+    const [rows] = await connection.query(query);
+    connection.release();
+
+    return res.status(200).json(rows);
+
+  } catch (err) {
+    console.error("Erro ao buscar total por setor:", err);
+    return res.status(500).json({ message: "Erro interno ao buscar dados por setor." });
+  }
+};
