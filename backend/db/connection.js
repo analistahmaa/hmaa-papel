@@ -14,18 +14,18 @@ const pool = mysql.createPool({
   charset: 'utf8mb4' // Primeira linha de defesa
 });
 
-// 2. A "Bala de Prata": Evento que é disparado para CADA nova conexão.
-// Isso força o charset para a sessão, sobrepondo qualquer padrão do servidor.
+// 2. A CORREÇÃO MAIS IMPORTANTE: Evento que força o charset em CADA nova conexão.
+// Isso garante que a sessão entre Node e MySQL sempre fale em UTF-8.
 pool.on('connection', function (connection) {
   console.log('Uma nova conexão foi estabelecida com o DB. Forçando charset para utf8mb4.');
   connection.query("SET NAMES 'utf8mb4'");
   connection.query("SET CHARACTER SET utf8mb4");
 });
 
-// 3. Exporta a interface de Promises, que todos os seus controllers usam.
+// 3. Exporta a interface de Promises, que seus controllers usam.
 const db = pool.promise();
 
-// 4. Testa a conexão na inicialização para feedback rápido.
+// 4. Testa a conexão na inicialização para feedback.
 db.getConnection()
   .then(connection => {
     console.log('✅ Conexão com o banco de dados MySQL estabelecida com sucesso!');
@@ -36,5 +36,5 @@ db.getConnection()
     process.exit(1); 
   });
 
-// 5. Exporta a conexão configurada para o resto da aplicação.
+// 5. Exporta a conexão para o resto da aplicação.
 module.exports = db;
