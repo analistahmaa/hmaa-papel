@@ -9,7 +9,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 // --- COMPONENTES DE CARD ---
 
-// StatCard Corrigido
 const StatCard = ({ title, value, unit, IconComponent, color, loading, error }) => (
     <Card elevation={4} sx={{ display: 'flex', flexDirection: 'column', height: '100%', borderRadius: '12px' }}>
       <CardContent sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
@@ -24,7 +23,6 @@ const StatCard = ({ title, value, unit, IconComponent, color, loading, error }) 
     </Card>
 );
 
-// Gráfico de Consumo por Setor (sem alterações, já estava correto)
 const ConsumoPorSetorChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,28 +35,29 @@ const ConsumoPorSetorChart = () => {
   }, []);
 
   return (
-    <Card elevation={4} sx={{ height: '100%', borderRadius: '12px' }}>
+    <Card elevation={4} sx={{ height: '100%', borderRadius: '12px', p: 2 }}>
       <CardHeader title="Top 5 Consumo por Setor (Mês)" titleTypographyProps={{ fontWeight: 'bold' }} avatar={<Box sx={{ bgcolor: '#f57c00', borderRadius: '50%', p: 1, display: 'flex' }}><Assessment sx={{ color: '#fff' }} /></Box>} />
       <CardContent>
-        {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}><CircularProgress color="warning" /></Box> :
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 50, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" hide />
-              <YAxis type="category" dataKey="nome" width={120} tick={{ fontSize: 12 }} interval={0} />
-              <Tooltip cursor={{fill: '#f5f5f5'}} formatter={(value) => [`${value} resmas`, 'Total']} />
-              <Bar dataKey="total_resmas" fill="#f57c00" barSize={20}>
-                <LabelList dataKey="total_resmas" position="right" style={{ fill: 'black' }} />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 250 }}><CircularProgress color="warning" /></Box> :
+          <Box sx={{ height: 250 }}> {/* Define uma altura fixa para o container do gráfico */}
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data} layout="vertical" margin={{ top: 5, right: 40, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="nome" width={150} tick={{ fontSize: 12 }} interval={0} />
+                <Tooltip cursor={{fill: '#f5f5f5'}} formatter={(value) => [`${value} resmas`, 'Total']} />
+                <Bar dataKey="total_resmas" fill="#f57c00" barSize={25}>
+                  <LabelList dataKey="total_resmas" position="right" style={{ fill: 'black', fontSize: '14px' }} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
         }
       </CardContent>
     </Card>
   );
 };
 
-// Card de Últimos Lançamentos (sem alterações, já estava correto)
 const UltimosLancamentosCard = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +73,7 @@ const UltimosLancamentosCard = () => {
     <Card elevation={4} sx={{ height: '100%', borderRadius: '12px' }}>
       <CardHeader title="Últimos 5 Lançamentos" titleTypographyProps={{ fontWeight: 'bold' }} avatar={<Box sx={{ bgcolor: '#43a047', borderRadius: '50%', p: 1, display: 'flex' }}><History sx={{ color: '#fff' }} /></Box>} />
       <CardContent>
-        {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 150 }}><CircularProgress color="success" /></Box> :
+        {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 250 }}><CircularProgress color="success" /></Box> :
           <List dense>
             {data.length > 0 ? data.map((item, index) => (
               <React.Fragment key={item.id}>
@@ -111,27 +110,31 @@ function Dashboard() {
         Dashboard de Controle
       </Typography>
       
-      {/* Grid Corrigida */}
+      {/* Grid com alinhamento e distribuição de espaço aprimorados */}
       <Grid container spacing={4} alignItems="stretch">
+        {/* Coluna da Esquerda (ocupa 1/3 em telas grandes) */}
         <Grid item xs={12} md={4}>
-          <StatCard
-            title="Total Geral no Mês"
-            value={totalGeralData.totalResmasMes}
-            unit="resmas"
-            IconComponent={Layers} // Passando o componente do ícone como prop
-            color="#3f51b5"
-            loading={loadingTotalGeral}
-            error={errorTotalGeral}
-          />
+          <Grid container direction="column" spacing={4}>
+            <Grid item>
+              <StatCard
+                title="Total Geral no Mês"
+                value={totalGeralData.totalResmasMes}
+                unit="resmas"
+                IconComponent={Layers}
+                color="#3f51b5"
+                loading={loadingTotalGeral}
+                error={errorTotalGeral}
+              />
+            </Grid>
+            <Grid item>
+              <UltimosLancamentosCard />
+            </Grid>
+          </Grid>
         </Grid>
         
+        {/* Coluna da Direita (ocupa 2/3 em telas grandes) */}
         <Grid item xs={12} md={8}>
           <ConsumoPorSetorChart />
-        </Grid>
-        
-        {/* Ocupa a linha toda em telas pequenas e médias, e metade em telas grandes */}
-        <Grid item xs={12} lg={12}>
-          <UltimosLancamentosCard />
         </Grid>
       </Grid>
     </Box>
