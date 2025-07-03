@@ -30,11 +30,18 @@ const StatCard = ({ title, value, unit, IconComponent, color, loading, error }) 
 const ConsumoPorSetorChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const theme = useTheme(); // Acessar o tema
+  const theme = useTheme();
 
   useEffect(() => {
     axios.get('/api/relatorios/total-por-setor')
-      .then(response => setData(response.data.slice(0, 5).map(item => ({...item, total_resmas: Number(item.total_resmas) || 0}))))
+      .then(response => {
+        // Garante que os dados são um array e que total_resmas é um número
+        const processedData = response.data.slice(0, 5).map(item => ({
+          ...item,
+          total_resmas: Number(item.total_resmas) || 0
+        }));
+        setData(processedData);
+      })
       .catch(error => console.error("Erro no gráfico:", error))
       .finally(() => setLoading(false));
   }, []);
@@ -46,11 +53,13 @@ const ConsumoPorSetorChart = () => {
         titleTypographyProps={{ fontWeight: 'bold', variant: 'h6' }} 
         avatar={<Box sx={{ bgcolor: theme.palette.warning.main, borderRadius: '50%', p: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Assessment sx={{ color: '#fff' }} /></Box>} 
       />
-      <CardContent sx={{ flexGrow: 1, pb: 0 }}> {/* Remover padding-bottom extra */}
-        {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress color="warning" /></Box> :
-          <ResponsiveContainer width="100%" height={200}> {/* Altura fixa para o gráfico */}
+      <CardContent sx={{ flexGrow: 1, pb: 0 }}>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><CircularProgress color="warning" /></Box>
+        ) : data.length > 0 ? (
+          <ResponsiveContainer width="100%" height={200}>
             <BarChart data={data} layout="vertical" margin={{ top: 5, right: 40, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.divider} /> {/* Linhas horizontais mais suaves */}
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.divider} />
               <XAxis type="number" hide />
               <YAxis 
                 type="category" 
@@ -71,7 +80,9 @@ const ConsumoPorSetorChart = () => {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        }
+        ) : (
+          <Typography color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>Nenhum dado de consumo disponível.</Typography>
+        )}
       </CardContent>
     </Card>
   );
