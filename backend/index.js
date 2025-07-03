@@ -9,6 +9,7 @@ const authRoutes = require("./routes/auth.js");
 const relatorioRoutes = require("./routes/relatorios.js");
 const registroRoutes = require("./routes/registros.js");
 const setorRoutes = require("./routes/setores.js");
+const exportRoutes = require("./routes/export.js");
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/relatorios", relatorioRoutes);
 app.use("/api/registros", registroRoutes);
 app.use("/api/setores", setorRoutes);
+app.use("/api/export", exportRoutes);
 
 // Rota de "saúde" da API para testes rápidos
 app.get("/api", (req, res) => {

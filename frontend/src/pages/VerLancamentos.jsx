@@ -5,6 +5,7 @@ import {
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, 
   TableHead, TableRow, CircularProgress, Alert, TextField, Grid, Button, MenuItem 
 } from '@mui/material';
+import { PictureAsPdf as PdfIcon, Description as ExcelIcon } from '@mui/icons-material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import axios from 'axios';
 
@@ -33,8 +34,11 @@ function VerLancamentos() {
     setLoading(true);
     setError(null);
     try {
-      // Constrói os parâmetros da query string a partir do estado dos filtros
-      const params = new URLSearchParams(filters).toString();
+      // Filtra apenas os parâmetros que têm valor
+      const activeFilters = Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v != null && v !== '')
+      );
+      const params = new URLSearchParams(activeFilters).toString();
       const response = await axios.get(`/api/registros?${params}`);
       setLancamentos(response.data);
     } catch (err) {
@@ -43,9 +47,9 @@ function VerLancamentos() {
     } finally {
       setLoading(false);
     }
-  }, [filters]); // Refaz a busca quando os filtros mudam
+  }, [filters]);
 
-  // Busca os setores para o <select> do filtro
+  // Busca os dados iniciais
   useEffect(() => {
     const fetchSetores = async () => {
       try {
@@ -56,11 +60,25 @@ function VerLancamentos() {
       }
     };
     fetchSetores();
-    fetchLancamentos(); // Carga inicial dos lançamentos
+    fetchLancamentos();
   }, [fetchLancamentos]);
 
+  // Função para o botão de busca
   const handleSearch = () => {
     fetchLancamentos();
+  };
+
+  // --- NOVA FUNÇÃO PARA EXPORTAÇÃO ---
+  const handleExport = (format) => {
+    // Filtra apenas os parâmetros que têm valor para a URL de exportação
+    const activeFilters = Object.fromEntries(
+      Object.entries(filters).filter(([_, v]) => v != null && v !== '')
+    );
+    const params = new URLSearchParams(activeFilters).toString();
+    const url = `/api/export/${format}?${params}`;
+    
+    // Abre a URL em uma nova aba, o que força o download
+    window.open(url, '_blank');
   };
 
   return (
@@ -70,7 +88,7 @@ function VerLancamentos() {
       </Typography>
       
       {/* --- CAMPOS DE FILTRO --- */}
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
         <Grid item xs={12} sm={6} md={2.5}>
           <TextField select fullWidth label="Setor" name="setor_id" value={filters.setor_id} onChange={handleFilterChange} variant="outlined" size="small">
             <MenuItem value=""><em>Todos</em></MenuItem>
@@ -92,18 +110,28 @@ function VerLancamentos() {
           </Button>
         </Grid>
       </Grid>
+      
+      {/* --- NOVA SEÇÃO DE BOTÕES DE EXPORTAÇÃO --- */}
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+        <Button variant="outlined" startIcon={<ExcelIcon />} onClick={() => handleExport('excel')} sx={{ textTransform: 'none' }}>
+          Exportar para Excel
+        </Button>
+        <Button variant="outlined" color="error" startIcon={<PdfIcon />} onClick={() => handleExport('pdf')} sx={{ textTransform: 'none' }}>
+          Exportar para PDF
+        </Button>
+      </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       
       {/* --- TABELA DE DADOS --- */}
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} variant="outlined">
         <Table sx={{ minWidth: 650 }} aria-label="tabela de lançamentos">
-          <TableHead sx={{ bgcolor: 'primary.main' }}>
+          <TableHead sx={{ bgcolor: 'grey.200' }}>
             <TableRow>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Setor</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Responsável</TableCell>
-              <TableCell align="right" sx={{ color: 'white', fontWeight: 'bold' }}>Resmas</TableCell>
-              <TableCell align="right" sx={{ color: 'white', fontWeight: 'bold' }}>Data</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Setor</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Responsável</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 'bold' }}>Resmas</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 'bold' }}>Data</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -115,7 +143,7 @@ function VerLancamentos() {
               </TableRow>
             ) : (
               lancamentos.map((row) => (
-                <TableRow key={row.id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#f7f7f7' } }}>
+                <TableRow key={row.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                   <TableCell component="th" scope="row">{row.setor_nome}</TableCell>
                   <TableCell>{row.responsavel}</TableCell>
                   <TableCell align="right">{row.quantidade_resmas}</TableCell>
@@ -125,7 +153,9 @@ function VerLancamentos() {
             )}
             {!loading && lancamentos.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} align="center">Nenhum lançamento encontrado para os filtros selecionados.</TableCell>
+                <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
+                  Nenhum lançamento encontrado para os filtros selecionados.
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
