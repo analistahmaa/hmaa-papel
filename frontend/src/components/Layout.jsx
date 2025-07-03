@@ -1,89 +1,51 @@
 // frontend/src/components/Layout.jsx
 
-import React, { useState, useEffect } from 'react';
-import { Outlet, Link as RouterLink, useLocation } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Box, Tabs, Tab, CssBaseline, Container } from '@mui/material';
-
-// Definição das rotas para as abas
-const navLinks = [
-  { label: 'Dashboard', path: '/' },
-  { label: 'Cadastrar Lançamento', path: '/cadastrar' },
-  { label: 'Ver Lançamentos', path: '/listagem' },
-  { label: 'Relatórios', path: '/relatorios' },
-];
+import React from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Box, Tabs, Tab, IconButton, Tooltip } from '@mui/material';
+import { useAuth } from '../context/AuthContext';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function Layout() {
+  const { user, logout } = useAuth();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState(0);
-
-  // Este useEffect garante que a aba correta fique selecionada ao navegar
-  useEffect(() => {
-    const activeIndex = navLinks.findIndex(link => link.path === location.pathname);
-    if (activeIndex !== -1) {
-      setActiveTab(activeIndex);
-    }
-  }, [location.pathname]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f4f6f8' }}>
-      <CssBaseline />
-      
-      {/* 1. BARRA SUPERIOR (APPBAR) */}
-      <AppBar position="static">
+    <Box sx={{ display: 'flex' }}>
+      <AppBar position="fixed">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Controle de Papel HMAA
           </Typography>
-          <Typography variant="body1">
-            Bem-vindo(a), João da Silva
+          <Typography sx={{ mr: 2 }}>
+            Bem-vindo(a), {user ? user.nome : 'Usuário'}
           </Typography>
+          <Tooltip title="Sair do sistema">
+            <IconButton color="inherit" onClick={logout}>
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
-      
-      {/* 2. BARRA DE ABAS DE NAVEGAÇÃO */}
-      <AppBar component="nav" position="static" color="default" elevation={1}>
-        <Container maxWidth="xl">
-          <Tabs
-            value={activeTab}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            {navLinks.map((link) => (
-              <Tab 
-                key={link.label} 
-                label={link.label} 
-                component={RouterLink} 
-                to={link.path} 
-              />
-            ))}
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar /> {/* Espaçador para o conteúdo não ficar atrás da AppBar */}
+        
+        {/* Abas de Navegação */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs value={location.pathname} indicatorColor="primary" textColor="primary">
+            <Tab label="Dashboard" value="/" to="/" component={Link} />
+            <Tab label="Cadastrar Lançamento" value="/cadastrar" to="/cadastrar" component={Link} />
+            <Tab label="Ver Lançamentos" value="/lancamentos" to="/lancamentos" component={Link} />
+            <Tab label="Relatórios" value="/relatorios" to="/relatorios" component={Link} />
+            {/* Rota de Admin protegida visualmente */}
+            {user && user.tipo === 'admin' && (
+              <Tab label="Gerenciar Usuários" value="/usuarios" to="/usuarios" component={Link} />
+            )}
           </Tabs>
-        </Container>
-      </AppBar>
-
-      {/* 3. ÁREA DE CONTEÚDO PRINCIPAL */}
-      <Box component="main" sx={{ flexGrow: 1, py: 4, px: 3 }}>
-        <Container maxWidth="xl">
-          {/* O conteúdo da rota (Dashboard, Cadastrar, etc.) será renderizado aqui */}
-          <Outlet /> 
-        </Container>
-      </Box>
-
-      {/* 4. RODAPÉ */}
-      <Box
-        component="footer"
-        sx={{
-          py: 2,
-          px: 2,
-          backgroundColor: '#2c3e50',
-          color: 'white',
-          textAlign: 'center',
-        }}
-      >
-        <Typography variant="body2">
-          © {new Date().getFullYear()} Controle de Papel HMAA | Sistema desenvolvido com React.js
-        </Typography>
+        </Box>
+        
+        {/* O conteúdo da página atual será renderizado aqui */}
+        <Outlet />
       </Box>
     </Box>
   );
