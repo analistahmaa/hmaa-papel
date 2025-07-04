@@ -4,18 +4,38 @@ import { Download as DownloadIcon } from '@mui/icons-material';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 
-// ... (o componente ReportCard continua o mesmo)
+// ==========================================================
+// === DEFINIÇÃO DO COMPONENTE QUE ESTAVA FALTANDO ===
+// ==========================================================
+const ReportCard = ({ title, description, onGenerate, loading }) => (
+  <Card elevation={3} sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <CardContent sx={{ flexGrow: 1 }}>
+      <Typography variant="h5" component="div" gutterBottom>{title}</Typography>
+      <Typography variant="body2" color="text.secondary">{description}</Typography>
+    </CardContent>
+    <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
+      <Button
+        variant="contained"
+        startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <DownloadIcon />}
+        onClick={onGenerate}
+        disabled={loading}
+      >
+        {loading ? 'Gerando...' : 'Gerar Relatório'}
+      </Button>
+    </CardActions>
+  </Card>
+);
+// ==========================================================
 
 function Relatorios() {
   const [loadingReport, setLoadingReport] = useState(null);
   const [filters, setFilters] = useState({
     data_inicio: '',
     data_fim: '',
-    setor_id: '', // Novo estado para o filtro de setor
+    setor_id: '',
   });
-  const [setores, setSetores] = useState([]); // Para popular o dropdown
+  const [setores, setSetores] = useState([]);
 
-  // Carrega a lista de setores
   useEffect(() => {
     const fetchSetores = async () => {
       try {
@@ -50,7 +70,6 @@ function Relatorios() {
       case 'totalPorSetor':
         url = '/api/relatorios/por-setor/pdf';
         defaultFilename = `Relatorio_Setor_${filters.data_inicio}_a_${filters.data_fim}.pdf`;
-        // Adiciona o setor_id aos parâmetros SOMENTE se ele for selecionado
         if (filters.setor_id) {
           params.setor_id = filters.setor_id;
         }
@@ -81,7 +100,6 @@ function Relatorios() {
         Central de Relatórios
       </Typography>
 
-      {/* Card de Filtros */}
       <Card sx={{ mb: 4, p: 2 }}>
         <Typography variant="h6" gutterBottom>Selecione os Filtros</Typography>
         <Grid container spacing={2}>
@@ -101,7 +119,7 @@ function Relatorios() {
       </Card>
 
       <Grid container spacing={3}>
-        {/* Card: Total por Setor */}
+        {/* Agora o <ReportCard /> existe e pode ser usado */}
         <Grid item xs={12} md={6}>
           <ReportCard
             title="Total por Setor"
@@ -110,8 +128,6 @@ function Relatorios() {
             loading={loadingReport === 'totalPorSetor'}
           />
         </Grid>
-
-        {/* Card: Gasto Total do Hospital */}
         <Grid item xs={12} md={6}>
           <ReportCard
             title="Gasto Total do Hospital"
