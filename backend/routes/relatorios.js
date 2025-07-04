@@ -6,7 +6,8 @@ const router = express.Router();
 const { 
   getDashboardData,
   getTotalPorSetorMes,
-  gerarRelatorioPorSetorPDF
+  gerarRelatorioPorSetorPDF,
+  gerarRelatorioGastoTotalPDF
 } = require("../controllers/relatorioController.js");
 
 // Rota para o card do dashboard de total geral
@@ -17,5 +18,6 @@ router.get("/total-por-setor", getTotalPorSetorMes);
 
 // Rota para o botão que GERA o PDF do relatório por setor
 router.get("/por-setor/pdf", gerarRelatorioPorSetorPDF);
+router.get("/gasto-total/pdf", gerarRelatorioGastoTotalPDF);
 
 module.exports = router;

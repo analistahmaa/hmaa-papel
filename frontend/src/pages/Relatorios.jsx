@@ -1,24 +1,20 @@
 import React, { useState } from 'react';
-import { Box, Typography, Grid, Card, CardContent, CardActions, Button, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, CardActions, Button, CircularProgress, TextField } from '@mui/material';
 import { Download as DownloadIcon } from '@mui/icons-material';
 import axios from 'axios';
-import { saveAs } from 'file-saver'; // npm install file-saver
+import { saveAs } from 'file-saver';
 
 // Componente reutilizável para os cards de relatório
-const ReportCard = ({ title, description, onGenerate, loading }) => (
-  <Card elevation={3} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-    <CardContent>
-      <Typography variant="h5" component="div" gutterBottom>
-        {title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {description}
-      </Typography>
+const ReportCard = ({ title, description, onGenerate, loading, children }) => (
+  <Card elevation={3} sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <CardContent sx={{ flexGrow: 1 }}>
+      <Typography variant="h5" component="div" gutterBottom>{title}</Typography>
+      <Typography variant="body2" color="text.secondary">{description}</Typography>
+      <Box mt={2}>{children}</Box> {/* Área para os filtros */}
     </CardContent>
     <CardActions sx={{ justifyContent: 'flex-end', p: 2 }}>
       <Button
         variant="contained"
-        color="secondary"
         startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <DownloadIcon />}
         onClick={onGenerate}
         disabled={loading}
@@ -29,11 +25,19 @@ const ReportCard = ({ title, description, onGenerate, loading }) => (
   </Card>
 );
 
-
 function Relatorios() {
-  const [loadingReport, setLoadingReport] = useState(null); // Armazena o nome do relatório em carregamento
+  const [loadingReport, setLoadingReport] = useState(null);
+  const [dates, setDates] = useState({ data_inicio: '', data_fim: '' });
+
+  const handleDateChange = (e) => {
+    setDates({ ...dates, [e.target.name]: e.target.value });
+  };
 
   const handleGenerateReport = async (reportType) => {
+    if (!dates.data_inicio || !dates.data_fim) {
+      alert('Por favor, selecione a data de início e a data de fim.');
+      return;
+    }
     setLoadingReport(reportType);
     
     let url = '';
@@ -41,35 +45,31 @@ function Relatorios() {
 
     switch(reportType) {
       case 'totalPorSetor':
-        // A URL agora aponta para a rota de geração de PDF
-        url = '/api/relatorios/por-setor/pdf'; 
-        defaultFilename = `Relatorio_Por_Setor_${new Date().toISOString().slice(0,10)}.pdf`;
+        url = '/api/relatorios/por-setor/pdf';
+        defaultFilename = `Relatorio_Setor_${dates.data_inicio}_a_${dates.data_fim}.pdf`;
         break;
-      // Adicionar outros casos para os outros relatórios aqui
-      // case 'consumoPorResponsavel': ...
+      case 'gastoTotal':
+        url = '/api/relatorios/gasto-total/pdf';
+        defaultFilename = `Gasto_Total_${dates.data_inicio}_a_${dates.data_fim}.pdf`;
+        break;
       default:
-        console.error('Tipo de relatório desconhecido');
         setLoadingReport(null);
         return;
     }
 
     try {
       const response = await axios.get(url, {
-        responseType: 'blob', // MUITO IMPORTANTE: para receber o arquivo como dados binários
+        params: { data_inicio: dates.data_inicio, data_fim: dates.data_fim },
+        responseType: 'blob',
       });
-
-      // Usa file-saver para iniciar o download
       saveAs(new Blob([response.data]), defaultFilename);
-
     } catch (error) {
       console.error(`Erro ao gerar o relatório ${reportType}:`, error);
-      // Aqui você pode adicionar um snackbar de erro
-      alert('Não foi possível gerar o relatório.');
+      alert('Não foi possível gerar o relatório. Verifique se existem dados no período selecionado.');
     } finally {
       setLoadingReport(null);
     }
   };
-
 
   return (
     <Box>
@@ -77,34 +77,37 @@ function Relatorios() {
         Central de Relatórios
       </Typography>
 
+      {/* Seletor de Período Global */}
+      <Card sx={{ mb: 4, p: 2 }}>
+        <Typography variant="h6" gutterBottom>Selecione o Período</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField fullWidth type="date" label="Data Início" name="data_inicio" value={dates.data_inicio} onChange={handleDateChange} InputLabelProps={{ shrink: true }} />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField fullWidth type="date" label="Data Fim" name="data_fim" value={dates.data_fim} onChange={handleDateChange} InputLabelProps={{ shrink: true }} />
+          </Grid>
+        </Grid>
+      </Card>
+
       <Grid container spacing={3}>
-        {/* Card: Total por Setor no Mês */}
-        <Grid item xs={12} md={6} lg={4}>
+        {/* Card: Total por Setor */}
+        <Grid item xs={12} md={6}>
           <ReportCard
-            title="Total por Setor no Mês"
-            description="Gera um relatório PDF consolidado com o total de resmas consumidas por cada setor no mês atual."
+            title="Total por Setor"
+            description="Gera um relatório PDF consolidado com o total de resmas consumidas por cada setor no período selecionado."
             onGenerate={() => handleGenerateReport('totalPorSetor')}
             loading={loadingReport === 'totalPorSetor'}
           />
         </Grid>
 
-        {/* Card: Consumo por Responsável (Placeholder) */}
-        <Grid item xs={12} md={6} lg={4}>
-          <ReportCard
-            title="Consumo por Responsável"
-            description="Detalha todos os lançamentos realizados por um responsável específico em um período."
-            onGenerate={() => alert('Funcionalidade em desenvolvimento!')}
-            loading={false}
-          />
-        </Grid>
-
-        {/* Card: Gasto Total do Hospital (Placeholder) */}
-        <Grid item xs={12} md={6} lg={4}>
+        {/* Card: Gasto Total do Hospital */}
+        <Grid item xs={12} md={6}>
           <ReportCard
             title="Gasto Total do Hospital"
-            description="Exibe um resumo do consumo total de resmas do hospital, mês a mês."
-            onGenerate={() => alert('Funcionalidade em desenvolvimento!')}
-            loading={false}
+            description="Exibe um resumo do consumo total de resmas do hospital no período selecionado."
+            onGenerate={() => handleGenerateReport('gastoTotal')}
+            loading={loadingReport === 'gastoTotal'}
           />
         </Grid>
       </Grid>
