@@ -1,55 +1,37 @@
 // backend/controllers/registroController.js
-const pool = require("../db/connection.js");
+const pool = require("../db/connection.js"); // Usando o pool de conexões com promessas
 
-// Função para adicionar um registro (já existe)
+// Renomeado para seguir o padrão async/await
 exports.addRegistro = async (req, res) => {
-    // ... seu código existente ...
-};
-
-// --- NOVA FUNÇÃO PARA LISTAR REGISTROS ---
-exports.getRegistros = async (req, res) => {
   try {
-    // Pega os parâmetros de filtro da query string (ex: /registros?setor_id=5)
-    const { setor_id, responsavel, data_inicio, data_fim } = req.query;
-
-    let query = `
-      SELECT 
-        r.id,
-        s.nome AS setor_nome,
-        r.responsavel,
-        r.quantidade_resmas,
-        DATE_FORMAT(r.data, '%d/%m/%Y') AS data_formatada
-      FROM registros r
-      JOIN setores s ON r.setor_id = s.id
-    `;
-
-    const params = [];
-    const conditions = [];
-
-    if (setor_id) {
-      conditions.push("r.setor_id = ?");
-      params.push(setor_id);
-    }
-    if (responsavel) {
-      conditions.push("r.responsavel LIKE ?");
-      params.push(`%${responsavel}%`); // Usamos LIKE para buscas parciais
-    }
-    if (data_inicio && data_fim) {
-      conditions.push("r.data BETWEEN ? AND ?");
-      params.push(data_inicio, data_fim);
-    }
-
-    if (conditions.length > 0) {
-      query += " WHERE " + conditions.join(" AND ");
+    const { setor_id, responsavel, quantidade_resmas, data } = req.body;
+    
+    // Validação de entrada
+    if (!setor_id || !responsavel || !quantidade_resmas || !data) {
+      return res.status(400).json({ message: "Todos os campos são obrigatórios." });
     }
     
-    query += " ORDER BY r.data DESC, r.id DESC";
-
-    const [rows] = await pool.query(query, params);
+    // Query SQL para inserir um novo registro
+    const query = "INSERT INTO registros (setor_id, responsavel, quantidade_resmas, data) VALUES (?, ?, ?, ?)";
     
-    return res.status(200).json(rows);
+    // Array de valores que correspondem aos '?' na query
+    const values = [setor_id, responsavel, quantidade_resmas, data];
+
+    // Executando a query com o pool de conexões
+    // O await garante que o código vai esperar a query terminar
+    const [result] = await pool.execute(query, values);
+
+    // Verificação se a inserção foi bem-sucedida
+    if (result.affectedRows === 1) {
+      return res.status(201).json({ message: "Lançamento salvo com sucesso!" });
+    } else {
+      // Caso raro, mas é bom ter
+      throw new Error("A inserção no banco de dados falhou, nenhuma linha foi afetada.");
+    }
+
   } catch (err) {
-    console.error("Erro ao buscar registros:", err);
-    return res.status(500).json({ message: "Erro interno ao buscar registros." });
+    // Captura qualquer erro que aconteça no bloco 'try'
+    console.error("Erro ao inserir registro:", err);
+    return res.status(500).json({ message: "Erro interno no servidor ao tentar salvar o lançamento." });
   }
 };

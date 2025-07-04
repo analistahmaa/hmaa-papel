@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // <-- IMPORT MOVIDO PARA CIMA
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Box, Tabs, Tab, Button } from '@mui/material';
 
@@ -43,11 +43,16 @@ function Layout() {
         </Toolbar>
       </AppBar>
 
-      {/* 2. Barra de Navegação */}
+      {/* 2. Barra de Navegação - VERSÃO COMPLETA E CORRIGIDA */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
         <Tabs value={location.pathname} centered>
           <Tab label="Dashboard" value="/" to="/" component={Link} />
           <Tab label="Cadastrar Lançamento" value="/cadastrar" to="/cadastrar" component={Link} />
+          
+          {/* BOTÕES CORRETOS E HABILITADOS */}
+          <Tab label="Ver Lançamentos" value="/lancamentos" to="/lancamentos" component={Link} />
+          <Tab label="Relatórios" value="/relatorios" to="/relatorios" component={Link} />
+          
           {/* Renderização condicional para o link de admin */}
           {usuario?.tipo === 'admin' && (
              <Tab label="Gerenciar Usuários" value="/usuarios" to="/usuarios" component={Link} />
@@ -70,7 +75,5 @@ function Layout() {
     </Box>
   );
 }
-
-// A linha de import que estava aqui embaixo foi movida para o topo.
 
 export default Layout;
