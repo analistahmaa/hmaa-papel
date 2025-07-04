@@ -105,6 +105,13 @@ exports.gerarRelatorioPorSetorPDF = async (req, res) => {
 exports.gerarRelatorioGastoTotalPDF = async (req, res) => {
   try {
     const { data_inicio, data_fim } = req.query;
+
+    // === LINHA DE DEPURAÇÃO - VERIFIQUE OS PARÂMETROS ===
+    console.log('Gerando relatório para o período:');
+    console.log('Data Início recebida:', data_inicio);
+    console.log('Data Fim recebida:', data_fim);
+    // ======================================================
+    
     if (!data_inicio || !data_fim) {
       return res.status(400).json({ message: 'Data de início e data de fim são obrigatórias.' });
     }
