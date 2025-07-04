@@ -83,7 +83,13 @@ exports.gerarRelatorioPorSetorPDF = async (req, res) => {
         const y = doc.y;
         doc.text(item.setor_nome, itemX, y, { width: 380 });
         doc.text(item.total_resmas.toString(), qtyX, y, { width: 100, align: 'right' });
-        totalGeral += item.total_resmas;
+        
+        // ==========================================================
+        // === CORREÇÃO APLICADA AQUI ===
+        // Garante que o valor seja somado como um número.
+        totalGeral += Number(item.total_resmas);
+        // ==========================================================
+        
         doc.moveDown();
       });
 
@@ -105,13 +111,6 @@ exports.gerarRelatorioPorSetorPDF = async (req, res) => {
 exports.gerarRelatorioGastoTotalPDF = async (req, res) => {
   try {
     const { data_inicio, data_fim } = req.query;
-
-    // === LINHA DE DEPURAÇÃO - VERIFIQUE OS PARÂMETROS ===
-    console.log('Gerando relatório para o período:');
-    console.log('Data Início recebida:', data_inicio);
-    console.log('Data Fim recebida:', data_fim);
-    // ======================================================
-    
     if (!data_inicio || !data_fim) {
       return res.status(400).json({ message: 'Data de início e data de fim são obrigatórias.' });
     }
@@ -124,7 +123,8 @@ exports.gerarRelatorioGastoTotalPDF = async (req, res) => {
     const params = [data_inicio, data_fim];
     const [rows] = await pool.query(query, params);
     
-    const totalGeral = rows[0].total_geral_resmas || 0;
+    // Number() também é uma boa prática aqui, para garantir.
+    const totalGeral = Number(rows[0].total_geral_resmas) || 0;
 
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
     const filename = `Gasto_Total_Hospital_${data_inicio}_a_${data_fim}.pdf`;
@@ -143,7 +143,7 @@ exports.gerarRelatorioGastoTotalPDF = async (req, res) => {
 
     doc.end();
 
-  } catch (err) { // <-- A CHAVE DE ABERTURA '{' ESTAVA FALTANDO AQUI
+  } catch (err) {
     console.error("Erro em gerarRelatorioGastoTotalPDF:", err);
     res.status(500).json({ message: "Erro ao gerar o relatório PDF de gasto total." });
   }
