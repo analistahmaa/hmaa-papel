@@ -1,11 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // <-- IMPORT MOVIDO PARA CIMA
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Box, Tabs, Tab, Button } from '@mui/material';
-
-// Função para pegar as iniciais do nome do usuário
-const getInitials = (name = '') => {
-  return name.split(' ').map(n => n[0]).join('').toUpperCase();
-};
 
 function Layout() {
   const location = useLocation();
@@ -53,8 +48,10 @@ function Layout() {
         <Tabs value={location.pathname} centered>
           <Tab label="Dashboard" value="/" to="/" component={Link} />
           <Tab label="Cadastrar Lançamento" value="/cadastrar" to="/cadastrar" component={Link} />
+          {/* Links desabilitados como placeholder */}
           <Tab label="Ver Lançamentos" value="/lancamentos" to="/lancamentos" component={Link} disabled />
           <Tab label="Relatórios" value="/relatorios" to="/relatorios" component={Link} disabled />
+          {/* Renderização condicional para o link de admin */}
           {usuario?.tipo === 'admin' && (
              <Tab label="Gerenciar Usuários" value="/usuarios" to="/usuarios" component={Link} />
           )}
@@ -62,23 +59,21 @@ function Layout() {
       </Box>
 
       {/* 3. Conteúdo Principal da Página */}
-      {/* Este 'Box' vai crescer para ocupar todo o espaço restante */}
       <Box
         component="main"
         sx={{
-          flexGrow: 1, // Permite que este elemento cresça
-          p: 3,        // Adiciona um padding interno
-          bgcolor: '#f4f6f8' // Um fundo cinza claro para o conteúdo
+          flexGrow: 1,
+          p: 3,
+          bgcolor: '#f4f6f8'
         }}
       >
-        <Outlet /> {/* Aqui é onde o Dashboard, Cadastrar, etc., serão renderizados */}
+        <Outlet /> {/* Onde as páginas são renderizadas */}
       </Box>
 
     </Box>
   );
 }
 
-// Você precisará adicionar estas importações se elas não existirem no seu Layout
-import { useState, useEffect } from 'react';
+// A linha de import que estava aqui embaixo foi movida para o topo.
 
 export default Layout;
