@@ -5,7 +5,7 @@ const router = express.Router();
 // Importando as funções do controller
 const { 
   getDashboardData,
-  relatorioPorSetor,
+  gerarRelatorioPorSetor,
   relatorioTotalMes,
   getTotalPorSetorMes,
   getUltimosLancamentos
@@ -17,7 +17,7 @@ const {
 router.get("/dashboard", getDashboardData); 
 
 // Outras rotas de relatório para o futuro
-router.get("/por-setor", relatorioPorSetor);
+router.get("/por-setor", gerarRelatorioPorSetor);
 router.get("/total-mes", relatorioTotalMes);
 router.get("/total-por-setor", getTotalPorSetorMes);
 router.get("/ultimos-lancamentos", getUltimosLancamentos);
