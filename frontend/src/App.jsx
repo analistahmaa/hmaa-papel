@@ -23,9 +23,6 @@ function App() {
           <Route path="cadastrar" element={<Cadastrar />} />
           <Route path="usuarios" element={<GerenciarUsuarios />} />
           <Route path="lancamentos" element={<VerLancamentos />} />
-          <Route path="relatorios" element={<div>Página de Relatórios em Construção</div>} />
-          <Route path="usuarios" element={<GerenciarUsuarios />} />
-          <Route path="lancamentos" element={<VerLancamentos />} />
           <Route path="relatorios" element={<Relatorios />} />
         </Route>
       )}

@@ -48,9 +48,6 @@ function Layout() {
         <Tabs value={location.pathname} centered>
           <Tab label="Dashboard" value="/" to="/" component={Link} />
           <Tab label="Cadastrar Lançamento" value="/cadastrar" to="/cadastrar" component={Link} />
-          {/* Links desabilitados como placeholder */}
-          <Tab label="Ver Lançamentos" value="/lancamentos" to="/lancamentos" component={Link} disabled />
-          <Tab label="Relatórios" value="/relatorios" to="/relatorios" component={Link} disabled />
           {/* Renderização condicional para o link de admin */}
           {usuario?.tipo === 'admin' && (
              <Tab label="Gerenciar Usuários" value="/usuarios" to="/usuarios" component={Link} />
