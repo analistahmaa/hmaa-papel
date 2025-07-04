@@ -82,7 +82,7 @@ function Dashboard() {
   }, []);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 4 }}>
         Dashboard de Controle
       </Typography>
