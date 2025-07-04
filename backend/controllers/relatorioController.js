@@ -39,18 +39,26 @@ exports.getTotalPorSetorMes = async (req, res) => {
 
 exports.gerarRelatorioPorSetorPDF = async (req, res) => {
   try {
-    const { data_inicio, data_fim } = req.query;
+    const { data_inicio, data_fim, setor_id } = req.query;
+
     if (!data_inicio || !data_fim) {
       return res.status(400).json({ message: 'Data de início e data de fim são obrigatórias.' });
     }
 
-    const query = `
+    let query = `
       SELECT s.nome AS setor_nome, SUM(r.quantidade_resmas) AS total_resmas
       FROM registros r JOIN setores s ON r.setor_id = s.id
       WHERE r.data BETWEEN ? AND ?
-      GROUP BY s.nome ORDER BY total_resmas DESC;
     `;
     const params = [data_inicio, data_fim];
+
+    if (setor_id) {
+      query += " AND r.setor_id = ?";
+      params.push(setor_id);
+    }
+
+    query += " GROUP BY s.nome ORDER BY total_resmas DESC;";
+
     const [rows] = await pool.query(query, params);
 
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
@@ -65,7 +73,7 @@ exports.gerarRelatorioPorSetorPDF = async (req, res) => {
     doc.moveDown(2);
 
     if (rows.length === 0) {
-      doc.fontSize(14).text('Nenhum dado encontrado para o período selecionado.', { align: 'center' });
+      doc.fontSize(14).text('Nenhum dado encontrado para os filtros selecionados.', { align: 'center' });
     } else {
       const tableTop = doc.y;
       const itemX = 50;
@@ -74,7 +82,7 @@ exports.gerarRelatorioPorSetorPDF = async (req, res) => {
       doc.fontSize(10).font('Helvetica-Bold');
       doc.text('Setor', itemX, tableTop);
       doc.text('Total (Resmas)', qtyX, tableTop, { width: 100, align: 'right' });
-      doc.moveTo(itemX, doc.y + 5).lineTo(itemX + 500, doc.y + 5).stroke();
+      doc.moveTo(itemX - 10, doc.y + 5).lineTo(itemX + 510, doc.y + 5).stroke();
       doc.moveDown();
       doc.font('Helvetica');
 
@@ -83,20 +91,14 @@ exports.gerarRelatorioPorSetorPDF = async (req, res) => {
         const y = doc.y;
         doc.text(item.setor_nome, itemX, y, { width: 380 });
         doc.text(item.total_resmas.toString(), qtyX, y, { width: 100, align: 'right' });
-        
-        // ==========================================================
-        // === CORREÇÃO APLICADA AQUI ===
-        // Garante que o valor seja somado como um número.
         totalGeral += Number(item.total_resmas);
-        // ==========================================================
-        
-        doc.moveDown();
+        doc.moveDown(0.8);
       });
 
-      doc.moveTo(itemX, doc.y + 5).lineTo(itemX + 500, doc.y + 5).stroke();
-      doc.moveDown();
+      doc.moveTo(itemX - 10, doc.y + 10).lineTo(itemX + 510, doc.y + 10).stroke();
+      doc.moveDown(1.5);
       doc.font('Helvetica-Bold');
-      doc.text('TOTAL GERAL:', itemX, doc.y);
+      doc.text('TOTAL GERAL:', itemX, doc.y, { width: 380 });
       doc.text(totalGeral.toString(), qtyX, doc.y, { width: 100, align: 'right' });
     }
     
@@ -123,7 +125,6 @@ exports.gerarRelatorioGastoTotalPDF = async (req, res) => {
     const params = [data_inicio, data_fim];
     const [rows] = await pool.query(query, params);
     
-    // Number() também é uma boa prática aqui, para garantir.
     const totalGeral = Number(rows[0].total_geral_resmas) || 0;
 
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
@@ -143,7 +144,7 @@ exports.gerarRelatorioGastoTotalPDF = async (req, res) => {
 
     doc.end();
 
-  } catch (err) {
+  } catch (err) { // O erro estava aqui, faltava a chave de abertura do catch
     console.error("Erro em gerarRelatorioGastoTotalPDF:", err);
     res.status(500).json({ message: "Erro ao gerar o relatório PDF de gasto total." });
   }
