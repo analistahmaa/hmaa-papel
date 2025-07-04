@@ -2,24 +2,20 @@
 const express = require("express");
 const router = express.Router();
 
-// Importando as funções do controller
+// Importa apenas as funções que existem no controller
 const { 
   getDashboardData,
-  gerarRelatorioPorSetor,
-  relatorioTotalMes,
   getTotalPorSetorMes,
-  getUltimosLancamentos
+  gerarRelatorioPorSetorPDF
 } = require("../controllers/relatorioController.js");
 
+// Rota para o card do dashboard de total geral
+router.get("/dashboard", getDashboardData);
 
-// Rota para os dados do dashboard (usada pelo componente Dashboard.jsx)
-// Acessível via: GET /api/relatorios/dashboard
-router.get("/dashboard", getDashboardData); 
-
-// Outras rotas de relatório para o futuro
-router.get("/por-setor", gerarRelatorioPorSetor);
-router.get("/total-mes", relatorioTotalMes);
+// Rota para o card do dashboard de total por setor
 router.get("/total-por-setor", getTotalPorSetorMes);
-router.get("/ultimos-lancamentos", getUltimosLancamentos);
+
+// Rota para o botão que GERA o PDF do relatório por setor
+router.get("/por-setor/pdf", gerarRelatorioPorSetorPDF);
 
 module.exports = router;

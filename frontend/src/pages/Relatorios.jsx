@@ -41,7 +41,8 @@ function Relatorios() {
 
     switch(reportType) {
       case 'totalPorSetor':
-        url = '/api/relatorios/por-setor';
+        // A URL agora aponta para a rota de geração de PDF
+        url = '/api/relatorios/por-setor/pdf'; 
         defaultFilename = `Relatorio_Por_Setor_${new Date().toISOString().slice(0,10)}.pdf`;
         break;
       // Adicionar outros casos para os outros relatórios aqui
