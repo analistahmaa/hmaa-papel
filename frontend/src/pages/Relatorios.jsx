@@ -124,3 +124,5 @@ function Relatorios() {
     </Box>
   );
 }
+
+export default Relatorios;
